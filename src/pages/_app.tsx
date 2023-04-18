@@ -6,12 +6,9 @@ import { api } from "~/utils/api";
 
 import "~/styles/globals.css";
 
-import "@fontsource/roboto/300.css";
-import "@fontsource/roboto/400.css";
-import "@fontsource/roboto/500.css";
-import "@fontsource/roboto/700.css";
 import Head from "next/head";
 import { MantineProvider } from "@mantine/core";
+import { Notifications } from "@mantine/notifications";
 
 const MyApp: AppType<{ session: Session | null }> = ({
   Component,
@@ -32,6 +29,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
             colorScheme: "light",
           }}
         >
+          <Notifications />
           <Component {...pageProps} />
         </MantineProvider>
       </SessionProvider>
