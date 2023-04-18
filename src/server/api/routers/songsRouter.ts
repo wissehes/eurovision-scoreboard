@@ -21,10 +21,10 @@ export const songsRouter = createTRPCRouter({
       z.object({
         year: z.number().min(1950),
         itemId: z.string().nonempty(),
-        country: z.string().nonempty(),
-        title: z.string().nonempty(),
-        artist: z.string().nonempty(),
-        youtube: z.string().url(),
+        country: z.string().nonempty("Country can't be empty!"),
+        title: z.string().nonempty("Title can't be empty!"),
+        artist: z.string().nonempty("Artist can't be empty!"),
+        youtube: z.string().url("YouTube URL Must be an actual url!"),
       })
     )
     .mutation(({ ctx, input }) => {
