@@ -1,7 +1,5 @@
 import { NextSeo } from "next-seo";
 import NavigationBar from "~/components/Navigation/NavigationBar";
-// import Container from "@mui/material/Container";
-// import Box from "@mui/material/Box";
 import { Container } from "@mantine/core";
 
 export default function StandardLayout({
