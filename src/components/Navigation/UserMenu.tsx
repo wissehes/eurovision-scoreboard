@@ -1,111 +1,199 @@
-import AppBar from "@mui/material/AppBar";
-import Box from "@mui/material/Box";
-import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
-import IconButton from "@mui/material/IconButton";
-import MenuIcon from "@mui/icons-material/Menu";
-import AccountCircle from "@mui/icons-material/AccountCircle";
-import Switch from "@mui/material/Switch";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import FormGroup from "@mui/material/FormGroup";
-import Avatar from "@mui/material/Avatar";
-import MenuItem from "@mui/material/MenuItem";
-import Menu from "@mui/material/Menu";
-
+import {
+  Group,
+  Loader,
+  Menu,
+  Text,
+  UnstyledButton,
+  createStyles,
+  rem,
+} from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
 import { signIn, signOut, useSession } from "next-auth/react";
-import { useState } from "react";
+import Link from "next/link";
+import ProfileAvatar from "../ProfileAvatar";
+import { IconChevronDown, IconLogout } from "@tabler/icons-react";
+
+const useStyles = createStyles((theme) => ({
+  header: {
+    paddingTop: theme.spacing.sm,
+    backgroundColor:
+      theme.colorScheme === "dark"
+        ? theme.colors.dark[6]
+        : theme.colors.gray[0],
+    borderBottom: `${rem(1)} solid ${
+      theme.colorScheme === "dark" ? "transparent" : theme.colors.gray[2]
+    }`,
+    marginBottom: rem(120),
+  },
+
+  mainSection: {
+    paddingBottom: theme.spacing.sm,
+  },
+
+  user: {
+    color: theme.colorScheme === "dark" ? theme.colors.dark[0] : theme.black,
+    padding: `${theme.spacing.xs} ${theme.spacing.sm}`,
+    borderRadius: theme.radius.sm,
+    transition: "background-color 100ms ease",
+
+    "&:hover": {
+      backgroundColor: theme.fn.lighten(
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        theme.fn.variant({ variant: "filled", color: "pink" }).background!,
+        0.1
+      ),
+    },
+
+    [theme.fn.smallerThan("xs")]: {
+      display: "none",
+    },
+  },
+
+  burger: {
+    [theme.fn.largerThan("xs")]: {
+      display: "none",
+    },
+  },
+
+  userActive: {
+    backgroundColor: theme.fn.lighten(
+      //   eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      theme.fn.variant({ variant: "filled", color: "pink" }).background!,
+      0.1
+    ),
+  },
+
+  tabs: {
+    [theme.fn.smallerThan("sm")]: {
+      display: "none",
+    },
+  },
+
+  tabsList: {
+    borderBottom: "0 !important",
+  },
+
+  tab: {
+    fontWeight: 500,
+    height: rem(38),
+    backgroundColor: "transparent",
+
+    "&:hover": {
+      backgroundColor:
+        theme.colorScheme === "dark"
+          ? theme.colors.dark[5]
+          : theme.colors.gray[1],
+    },
+
+    "&[data-active]": {
+      backgroundColor:
+        theme.colorScheme === "dark" ? theme.colors.dark[7] : theme.white,
+      borderColor:
+        theme.colorScheme === "dark"
+          ? theme.colors.dark[7]
+          : theme.colors.gray[2],
+    },
+  },
+  link: {
+    display: "block",
+    lineHeight: 1,
+    padding: `${rem(8)} ${rem(12)}`,
+    borderRadius: theme.radius.sm,
+    textDecoration: "none",
+    color: theme.white,
+    fontSize: theme.fontSizes.sm,
+    fontWeight: 500,
+
+    "&:hover": {
+      backgroundColor: theme.fn.lighten(
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        theme.fn.variant({ variant: "filled", color: "pink" }).background!,
+        0.1
+      ),
+    },
+  },
+
+  nameText: {
+    color: theme.white,
+    lineHeight: 1,
+  },
+}));
 
 export default function UserMenu() {
-  const { status: sessionStatus } = useSession();
+  const { classes, cx, theme } = useStyles();
+  const [opened, { open, close }] = useDisclosure(false);
 
-  const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
+  const { data: session, status } = useSession();
 
-  const openMenu = (event: React.MouseEvent<HTMLElement>) =>
-    setMenuAnchor(event.currentTarget);
-
-  const closeMenu = () => setMenuAnchor(null);
-
-  return (
-    <div>
-      <IconButton
-        size="large"
-        aria-label="account of current user"
-        aria-controls="menu-appbar"
-        aria-haspopup="true"
-        onClick={openMenu}
-        color="inherit"
-      >
-        <AccountCircle />
-      </IconButton>
-
-      <Menu
-        // sx={{ mt: "1rem" }}
-        id="menu-appbar"
-        anchorEl={menuAnchor}
-        open={Boolean(menuAnchor)}
-        onClose={closeMenu}
-        PaperProps={{
-          elevation: 0,
-          sx: {
-            overflow: "visible",
-            filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
-            mt: 1.5,
-            "& .MuiAvatar-root": {
-              width: 32,
-              height: 32,
-              ml: -0.5,
-              mr: 1,
-            },
-            "&:before": {
-              content: '""',
-              display: "block",
-              position: "absolute",
-              top: 0,
-              right: 14,
-              width: 10,
-              height: 10,
-              bgcolor: "background.paper",
-              transform: "translateY(-50%) rotate(45deg)",
-              zIndex: 0,
-            },
-          },
+  if (status == "unauthenticated") {
+    return (
+      <Link
+        className={classes.link}
+        onClick={(e) => {
+          e.preventDefault();
+          void signIn();
         }}
-        transformOrigin={{ horizontal: "right", vertical: "top" }}
-        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+        href="/api/auth/signin"
       >
-        {sessionStatus == "authenticated" ? (
-          <AuthenticatedMenu onClose={closeMenu} />
-        ) : (
-          <UnauthenticatedMenu />
-        )}
-      </Menu>
-    </div>
+        Sign in
+      </Link>
+    );
+  }
+
+  return (
+    <Menu
+      width={180}
+      position="bottom-end"
+      transitionProps={{ transition: "pop-top-right" }}
+      onClose={close}
+      onOpen={open}
+      withinPortal
+    >
+      <Menu.Target>
+        <UnstyledButton
+          className={cx(classes.user, { [classes.userActive]: opened })}
+        >
+          <Group spacing={7}>
+            <ProfileAvatar size={20} radius="xl" />
+            {status == "loading" && <Loader size={20} />}
+            {status !== "loading" && (
+              <Text weight={500} size="sm" className={classes.nameText} mr={3}>
+                {session?.user.name ?? <i>No name...</i>}
+              </Text>
+            )}
+            <IconChevronDown size={rem(12)} stroke={1.5} color="white" />
+          </Group>
+        </UnstyledButton>
+      </Menu.Target>
+
+      <Menu.Dropdown>
+        {session?.user.role == "ADMIN" && <AdminSection />}
+        <Menu.Divider />
+
+        <Menu.Item
+          icon={
+            <IconLogout
+              size="0.9rem"
+              color={theme.colors.red[6]}
+              stroke={1.5}
+            />
+          }
+          onClick={() => void signOut()}
+        >
+          Sign out
+        </Menu.Item>
+      </Menu.Dropdown>
+    </Menu>
   );
 }
 
-interface MenuProps {
-  onClose: () => void;
-}
-
-function AuthenticatedMenu({ onClose }: MenuProps) {
-  const { data } = useSession();
-
+function AdminSection() {
   return (
     <>
-      <MenuItem onClick={onClose}>
-        <Avatar /> {data?.user.name}
-      </MenuItem>
-      <MenuItem onClick={onClose}>Profile</MenuItem>
-      <MenuItem onClick={onClose}>My account</MenuItem>
-      <MenuItem onClick={() => void signOut()}>Sign out</MenuItem>
-    </>
-  );
-}
-
-function UnauthenticatedMenu() {
-  return (
-    <>
-      <MenuItem onClick={() => void signIn()}>Sign in</MenuItem>
+      <Menu.Label>Admin section</Menu.Label>
+      <Menu.Item component={Link} href="/admin/">
+        Manage data
+      </Menu.Item>
     </>
   );
 }
