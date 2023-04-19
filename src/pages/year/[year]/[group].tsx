@@ -1,9 +1,33 @@
-import { Anchor, Table, Title } from "@mantine/core";
+import {
+  ActionIcon,
+  Anchor,
+  Box,
+  Paper,
+  Text,
+  Title,
+  createStyles,
+  rem,
+} from "@mantine/core";
 import { useRouter } from "next/router";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import LinkBreadcrumbs, { type Link } from "~/components/LinkBreadcrumbs";
 import StandardLayout from "~/layouts/StandardLayout";
 import { api } from "~/utils/api";
+
+import {
+  DragDropContext,
+  Draggable,
+  Droppable,
+  type OnDragEndResponder,
+} from "react-beautiful-dnd";
+import type { Country, RankableItem } from "@prisma/client";
+import { IconBrandYoutube } from "@tabler/icons-react";
+
+type Song = RankableItem & {
+  country: Country;
+};
+
+type Items = Song[];
 
 export default function ItemAdminPage() {
   const router = useRouter();
@@ -11,13 +35,26 @@ export default function ItemAdminPage() {
   const year = Number(router.query.year as string | undefined);
   const groupId = router.query.group as string | undefined;
 
-  const item = api.songs.getForYearItem.useQuery(
+  const item = api.songs.getForRankedYearGroup.useQuery(
     {
       year,
       id: groupId as string,
     },
-    { enabled: !Number.isNaN(router.query.year) }
+    { enabled: !Number.isNaN(year) }
   );
+
+  const update = api.songs.saveRanking.useMutation();
+
+  const [localItems, setLocalItems] = useState<Items | null>(null);
+
+  useEffect(() => {
+    if (!item.data) return;
+    if (item.data.myRanking?.rankedSongs.length) {
+      setLocalItems(item.data.myRanking.rankedSongs.map((a) => a.song));
+    } else {
+      setLocalItems(item.data.unrankedSongs);
+    }
+  }, [item.data]);
 
   const breadcrumbs = useMemo(() => {
     const links: Link[] = [
@@ -29,12 +66,30 @@ export default function ItemAdminPage() {
     if (item.data) {
       links.push({
         label: item.data.name,
-        href: `/year/${item.data.eurovisionYearYear}/${item.data.id}`,
+        href: `/year/${item.data.year}/${item.data.id}`,
       });
     }
 
     return <LinkBreadcrumbs my="md" links={links} />;
   }, [item.data, year]);
+
+  const onDragEnd: OnDragEndResponder = (result) => {
+    if (!result.destination) return;
+    if (!localItems) return;
+
+    const newItems = [...localItems];
+    const [removed] = newItems.splice(result.source.index, 1);
+    if (!removed) return;
+    newItems.splice(result.destination.index, 0, removed);
+    setLocalItems(newItems);
+
+    if (!groupId) return;
+    update.mutate({
+      year,
+      id: groupId,
+      items: newItems.map((a, i) => ({ id: a.id, rank: i + 1 })),
+    });
+  };
 
   return (
     <StandardLayout title="Year item">
@@ -44,34 +99,103 @@ export default function ItemAdminPage() {
         {year}: {item.data?.name}
       </Title>
 
-      <Table mt="md">
-        <thead>
-          <tr>
-            <th align="center" colSpan={1}>
-              Rank
-            </th>
-            <th>Country</th>
-            <th>Song title</th>
-            <th>Artist</th>
-            <th>YouTube</th>
-          </tr>
-        </thead>
-        <tbody>
-          {item.data?.items.map((i, index) => (
-            <tr key={i.id}>
-              <td align="center">{index + 1}</td>
-              <td>{i.country.fullname}</td>
-              <td>{i.title}</td>
-              <td>{i.artist}</td>
-              <td>
-                <Anchor href={i.youtubeURL} target="_blank">
-                  Open
-                </Anchor>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </Table>
+      <DragDropContext onDragEnd={onDragEnd}>
+        <Droppable droppableId={`${year}-droppable`}>
+          {(provided, _snapshot) => (
+            <Paper
+              {...provided.droppableProps}
+              ref={provided.innerRef}
+              p="md"
+              shadow="md"
+              radius="md"
+              withBorder
+              style={{ userSelect: "none" }}
+            >
+              <Title order={5} mb="md">
+                Songs
+              </Title>
+
+              {localItems?.map((item, index) => (
+                <Draggable key={item.id} draggableId={item.id} index={index}>
+                  {(provided, _snapshot) => (
+                    <Paper
+                      {...provided.draggableProps}
+                      {...provided.dragHandleProps}
+                      ref={provided.innerRef}
+                      p="xs"
+                      mb="md"
+                      radius="sm"
+                      shadow="md"
+                      withBorder
+                    >
+                      <SongItem song={item} index={index} />
+                    </Paper>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
+            </Paper>
+          )}
+        </Droppable>
+      </DragDropContext>
     </StandardLayout>
+  );
+}
+
+interface SongItemProps {
+  song: Song;
+  index: number;
+}
+
+const useStyles = createStyles(() => ({
+  root: {
+    display: "flex",
+    alignItems: "center",
+  },
+
+  rank: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingRight: "1rem",
+    paddingLeft: "1rem",
+
+    marginRight: "1rem",
+  },
+
+  youtubeIcon: {
+    marginLeft: "auto",
+    marginRight: "1.5rem",
+  },
+}));
+
+function SongItem({ song, index }: SongItemProps) {
+  const { classes } = useStyles();
+
+  return (
+    <Box className={classes.root}>
+      <Box className={classes.rank}>
+        <Text size="xl" weight="bold">
+          {index + 1}
+        </Text>
+      </Box>
+      <Box>
+        <Text size="lg" weight="bold">
+          {song.title}
+        </Text>
+        <Text size="md">{song.artist}</Text>
+      </Box>
+
+      <ActionIcon
+        className={classes.youtubeIcon}
+        color="red"
+        size="xl"
+        component={"a"}
+        href={song.youtubeURL}
+        target="_blank"
+      >
+        <IconBrandYoutube size="2.5rem" />
+      </ActionIcon>
+    </Box>
   );
 }
