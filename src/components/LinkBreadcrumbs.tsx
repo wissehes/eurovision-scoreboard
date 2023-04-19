@@ -1,7 +1,7 @@
 import { Anchor, Breadcrumbs, type BreadcrumbsProps } from "@mantine/core";
 import Link from "next/link";
 
-interface Link {
+export interface Link {
   label: string;
   href: string;
 }
