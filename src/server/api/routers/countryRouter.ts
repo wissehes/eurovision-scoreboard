@@ -10,6 +10,7 @@ import {
 import { parse as parseCSV } from "csv-string";
 import { type Comma } from "csv-string/dist/types";
 import delay from "~/utils/delay";
+import { TRPCError } from "@trpc/server";
 
 export const countryRouter = createTRPCRouter({
   getAll: publicProcedure.query(({ ctx }) => {
@@ -18,6 +19,29 @@ export const countryRouter = createTRPCRouter({
       orderBy: { id: "asc" },
     });
   }),
+
+  getAvailableCountries: publicProcedure
+    .input(z.object({ groupId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const countries = await ctx.prisma.country.findMany({
+        include: { _count: { select: { items: true } } },
+        orderBy: { id: "asc" },
+      });
+      const group = await ctx.prisma.eurovisionRankable.findUnique({
+        where: { id: input.groupId },
+        select: { items: { select: { countryId: true } } },
+      });
+
+      if (!group) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+        });
+      }
+
+      const existingCountries = group.items.map((i) => i.countryId);
+
+      return countries.filter((c) => !existingCountries.includes(c.id));
+    }),
 
   create: adminProcedure
     .input(z.object({ abbreviation: z.string(), fullname: z.string().min(3) }))

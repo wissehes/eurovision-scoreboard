@@ -36,7 +36,9 @@ const baseValidation = (v: string) =>
   v.trim().length == 0 ? "This can't be empty." : null;
 
 export default function AddSongModal(props: AddSongDialogProps) {
-  const countries = api.countries.getAll.useQuery();
+  const countries = api.countries.getAvailableCountries.useQuery({
+    groupId: props.id,
+  });
   const context = api.useContext();
 
   const [opened, { open, close }] = useDisclosure(false);
@@ -58,6 +60,7 @@ export default function AddSongModal(props: AddSongDialogProps) {
       await context.songs.getForYearItem.invalidate();
       close();
       form.reset();
+      mutation.reset();
     },
     onError: errorNotification,
   });
@@ -85,13 +88,14 @@ export default function AddSongModal(props: AddSongDialogProps) {
     <>
       <Button onClick={open}>Add song</Button>
 
-      <Modal opened={opened} onClose={close} title="Authentication">
+      <Modal opened={opened} onClose={close} title="Add song">
         <LoadingOverlay visible={mutation.isLoading || mutation.isSuccess} />
         <Form form={form} onSubmit={onSubmit}>
           <Select
             label="Country"
             withAsterisk
             data={mappedCountries}
+            searchable
             {...form.getInputProps("country")}
           />
 
