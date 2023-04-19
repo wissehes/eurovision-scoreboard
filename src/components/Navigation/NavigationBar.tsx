@@ -8,6 +8,7 @@ import {
   Title,
   Transition,
   Paper,
+  Anchor,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 // import { IconChevronDown } from "@tabler/icons-react";
@@ -185,7 +186,9 @@ export default function NavigationBar() {
     <Header height={HEADER_HEIGHT} mb={25} className={classes.root}>
       <Container className={classes.header}>
         <div className={classes.inner}>
-          <Title className={classes.title}>Eurovision Scoreboard</Title>
+          <Anchor component={Link} href="/" underline={false}>
+            <Title className={classes.title}>Eurovision Scoreboard</Title>
+          </Anchor>
           <Group spacing={5} className={classes.links}>
             {items}
 
