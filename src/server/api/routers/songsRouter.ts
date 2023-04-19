@@ -3,7 +3,8 @@ import { z } from "zod";
 import {
   createTRPCRouter,
   publicProcedure,
-  protectedProcedure,
+  // protectedProcedure,
+  adminProcedure,
 } from "~/server/api/trpc";
 
 export const songsRouter = createTRPCRouter({
@@ -16,7 +17,7 @@ export const songsRouter = createTRPCRouter({
       });
     }),
 
-  addToYearItem: protectedProcedure
+  addToYearItem: adminProcedure
     .input(
       z.object({
         year: z.number().min(1950),
