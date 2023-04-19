@@ -14,7 +14,7 @@ export default function StandardLayout({
       <NextSeo title={title} />
       <NavigationBar />
 
-      <main>
+      <main style={{ paddingBottom: "3rem" }}>
         <Container>
           {/* <Box sx={{ my: 2 }}>{children}</Box> */}
           {children}
