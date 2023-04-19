@@ -1,8 +1,10 @@
 import { Button, Group, Table, Text, TextInput, Title } from "@mantine/core";
 import { Form, useForm } from "@mantine/form";
+import { type GetServerSideProps } from "next";
 import UploadCSVModal from "~/components/Countries/UploadCSVModal";
 import LinkBreadcrumbs from "~/components/LinkBreadcrumbs";
 import StandardLayout from "~/layouts/StandardLayout";
+import { getServerAuthSession } from "~/server/auth";
 import { api } from "~/utils/api";
 
 interface FormValues {
@@ -11,6 +13,14 @@ interface FormValues {
 }
 
 const initialValues: FormValues = { abbreviation: "", fullname: "" };
+
+export const getServerSideProps: GetServerSideProps = async (ctx) => {
+  const session = await getServerAuthSession(ctx);
+
+  return session?.user.role == "ADMIN"
+    ? { props: { session } }
+    : { notFound: true };
+};
 
 export default function CountriesAdminPage() {
   const context = api.useContext();
