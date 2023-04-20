@@ -23,7 +23,7 @@ export default function YearPage() {
     <tr
       key={i.id}
       style={{ cursor: "pointer", userSelect: "none" }}
-      onDoubleClick={onDoubleClick(i.eurovisionYearYear, i.id)}
+      onDoubleClick={onDoubleClick(i.yearId, i.id)}
     >
       <td>{i.name}</td>
       <td>{i.items.length ?? 0}</td>
@@ -32,7 +32,7 @@ export default function YearPage() {
           color="indigo"
           compact
           component={Link}
-          href={`/year/${i.eurovisionYearYear}/${i.id}`}
+          href={`/year/${i.yearId}/${i.id}`}
         >
           Open
         </Button>
