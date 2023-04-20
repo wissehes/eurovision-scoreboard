@@ -1,16 +1,14 @@
 import { Image, type ImageProps } from "@mantine/core";
 
-interface FlagAvatarProps extends Omit<ImageProps, "children"> {
+interface FlagImageProps extends Omit<ImageProps, "children"> {
   code: string;
 }
 
-export default function FlagAvatar({ code, ...props }: FlagAvatarProps) {
+export default function FlagImage({ code, ...props }: FlagImageProps) {
   return (
     <Image
       src={`https://flagcdn.com/${code.toLowerCase()}.svg`}
       alt={`Flag for ${code}`}
-      maw={45}
-      ml="sm"
       radius={5}
       withPlaceholder
       {...props}
