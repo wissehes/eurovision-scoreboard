@@ -1,7 +1,6 @@
 import { createTRPCRouter } from "~/server/api/trpc";
-import { exampleRouter } from "~/server/api/routers/example";
 import { yearRouter } from "./routers/yearRouter";
-import { rankableRouter } from "./routers/rankableRouter";
+import { groupRouter } from "./routers/groupRouter";
 import { songsRouter } from "./routers/songsRouter";
 import { countryRouter } from "./routers/countryRouter";
 
@@ -11,9 +10,8 @@ import { countryRouter } from "./routers/countryRouter";
  * All routers added in /api/routers should be manually added here.
  */
 export const appRouter = createTRPCRouter({
-  example: exampleRouter,
   years: yearRouter,
-  rankable: rankableRouter,
+  group: groupRouter,
   songs: songsRouter,
   countries: countryRouter,
 });

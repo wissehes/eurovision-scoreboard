@@ -6,12 +6,12 @@ import {
   //   protectedProcedure,
 } from "~/server/api/trpc";
 
-export const rankableRouter = createTRPCRouter({
+export const groupRouter = createTRPCRouter({
   getItems: publicProcedure
     .input(z.object({ year: z.number(), id: z.string() }))
     .query(({ ctx, input }) => {
-      return ctx.prisma.eurovisionRankable.findFirst({
-        where: { eurovisionYearYear: input.year, id: input.id },
+      return ctx.prisma.eurovisionGroup.findFirst({
+        where: { yearId: input.year, id: input.id },
         include: { items: { include: { country: true } } },
       });
     }),
