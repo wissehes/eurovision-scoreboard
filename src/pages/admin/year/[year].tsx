@@ -1,4 +1,15 @@
-import { Button, Loader, Table, Title } from "@mantine/core";
+import {
+  Button,
+  Group,
+  Loader,
+  Select,
+  Table,
+  TextInput,
+  Title,
+} from "@mantine/core";
+import { Form, useForm } from "@mantine/form";
+import type { EurovisionType } from "@prisma/client";
+import { IconPlus } from "@tabler/icons-react";
 import type { GetServerSideProps } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -9,6 +20,7 @@ import LinkBreadcrumbs, {
 } from "~/components/LinkBreadcrumbs";
 import StandardLayout from "~/layouts/StandardLayout";
 import { getServerAuthSession } from "~/server/auth";
+import { useNotify } from "~/utils/Notifications";
 import { api } from "~/utils/api";
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
@@ -83,6 +95,8 @@ export default function YearAdminPage() {
       <Title>{year.data.year}</Title>
       <Title order={3}>Groups: {year.data?.items.length ?? 0}</Title>
 
+      <AddGroupForm year={year.data.year} />
+
       <Table striped highlightOnHover>
         <thead>
           <tr>
@@ -95,5 +109,72 @@ export default function YearAdminPage() {
         <tbody>{rows}</tbody>
       </Table>
     </StandardLayout>
+  );
+}
+
+const types: { label: string; value: EurovisionType }[] = [
+  { label: "Grand final", value: "GRAND_FINAL" },
+  { label: "First semi final", value: "SEMI_1" },
+  { label: "Second semi final", value: "SEMI_2" },
+  { label: "National Final", value: "NATIONAL_FINAL" },
+  { label: "Other group", value: "GROUP" },
+];
+
+interface FormValues {
+  name: string;
+  type: EurovisionType;
+}
+
+const initialValues: FormValues = {
+  name: "",
+  type: "GRAND_FINAL",
+};
+
+function AddGroupForm({ year }: { year: number }) {
+  const notify = useNotify();
+  const context = api.useContext();
+  const form = useForm({
+    initialValues,
+  });
+
+  const create = api.group.create.useMutation({
+    onError: notify.onError,
+    onSuccess: async () => {
+      form.reset();
+      await context.years.get.invalidate({ year });
+    },
+  });
+
+  const mutate = (v: FormValues) => {
+    create.mutate({ year, ...v });
+  };
+
+  return (
+    <Form form={form} onSubmit={mutate}>
+      <Group>
+        <TextInput
+          label="Name"
+          placeholder="Name..."
+          disabled={create.isLoading}
+          {...form.getInputProps("name")}
+        />
+        <Select
+          label="Type"
+          searchable
+          data={types}
+          disabled={create.isLoading}
+          {...form.getInputProps("type")}
+        />
+
+        <Button
+          type="submit"
+          leftIcon={<IconPlus size="1rem" />}
+          mt="xl"
+          loading={create.isLoading}
+        >
+          Add
+        </Button>
+      </Group>
+    </Form>
   );
 }
