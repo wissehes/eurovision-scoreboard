@@ -1,8 +1,9 @@
-import { Button, Loader, Table, Title } from "@mantine/core";
+import { Loader, Text, Title } from "@mantine/core";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useMemo } from "react";
 import LinkBreadcrumbs from "~/components/LinkBreadcrumbs";
+import MyList from "~/components/List/MyList";
 import StandardLayout from "~/layouts/StandardLayout";
 import { api } from "~/utils/api";
 
@@ -15,30 +16,6 @@ export default function YearPage() {
     },
     { enabled: !!router.query.year && !Number.isNaN(router.query.year) }
   );
-
-  const onDoubleClick = (year: number, item: string) => () =>
-    void router.push(`/year/${year}/${item}`);
-
-  const rows = year.data?.items.map((i) => (
-    <tr
-      key={i.id}
-      style={{ cursor: "pointer", userSelect: "none" }}
-      onDoubleClick={onDoubleClick(i.yearId, i.id)}
-    >
-      <td>{i.name}</td>
-      <td>{i.items.length ?? 0}</td>
-      <td>
-        <Button
-          color="indigo"
-          compact
-          component={Link}
-          href={`/year/${i.yearId}/${i.id}`}
-        >
-          Open
-        </Button>
-      </td>
-    </tr>
-  ));
 
   const breadcrumbs = useMemo(() => {
     const links: { label: string; href: string }[] = [
@@ -69,10 +46,29 @@ export default function YearPage() {
     <StandardLayout title="Year items">
       {breadcrumbs}
 
-      <Title>{year.data.year}</Title>
-      <Title order={3}>Items: {year.data?.items.length ?? 0}</Title>
+      <Title mb="md">{year.data.year}</Title>
 
-      <Table striped highlightOnHover>
+      <MyList>
+        {year.data?.items.map((i) => (
+          <MyList.Item
+            key={i.id}
+            component={Link}
+            href={`/year/${i.yearId}/${i.id}`}
+          >
+            <Title order={2} style={{ padding: "1rem" }}>
+              {i.name}
+            </Title>
+
+            <Text color="dimmed" sx={{ marginLeft: "auto" }} mr="md">
+              {i.items.length} Songs
+            </Text>
+
+            <MyList.Chevron ml={false} />
+          </MyList.Item>
+        ))}
+      </MyList>
+
+      {/* <Table striped highlightOnHover>
         <thead>
           <tr>
             <th>Name</th>
@@ -81,7 +77,7 @@ export default function YearPage() {
           </tr>
         </thead>
         <tbody>{rows}</tbody>
-      </Table>
+      </Table> */}
     </StandardLayout>
   );
 }
