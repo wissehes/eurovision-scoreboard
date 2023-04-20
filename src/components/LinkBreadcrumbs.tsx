@@ -10,6 +10,13 @@ interface LinkBreadcrumbProps extends Omit<BreadcrumbsProps, "children"> {
   links: Link[];
 }
 
+export const crumbs = {
+  adminPage: { label: "Admin", href: "/admin" },
+  adminYears: { label: "Years", href: "/admin/year" },
+
+  homePage: { label: "Home", href: "/" },
+};
+
 export default function LinkBreadcrumbs({
   links,
   ...props
