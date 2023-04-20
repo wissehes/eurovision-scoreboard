@@ -13,8 +13,8 @@ export const songsRouter = createTRPCRouter({
   getForYearItem: publicProcedure
     .input(z.object({ year: z.number(), id: z.string() }))
     .query(({ ctx, input }) => {
-      return ctx.prisma.eurovisionRankable.findFirst({
-        where: { eurovisionYearYear: input.year, id: input.id },
+      return ctx.prisma.eurovisionGroup.findFirst({
+        where: { yearId: input.year, id: input.id },
         include: { items: { include: { country: true } } },
       });
     }),
@@ -24,8 +24,8 @@ export const songsRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
 
-      const group = await ctx.prisma.eurovisionRankable.findFirst({
-        where: { eurovisionYearYear: input.year, id: input.id },
+      const group = await ctx.prisma.eurovisionGroup.findFirst({
+        where: { yearId: input.year, id: input.id },
         include: {
           items: {
             include: { country: true },
@@ -65,7 +65,7 @@ export const songsRouter = createTRPCRouter({
         id: group.id,
         name: group.name,
         type: group.type,
-        year: group.eurovisionYearYear,
+        year: group.yearId,
         myRanking,
         unrankedSongs,
       };
@@ -80,7 +80,7 @@ export const songsRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const group = await ctx.prisma.eurovisionRankable.findUnique({
+      const group = await ctx.prisma.eurovisionGroup.findUnique({
         where: { id: input.id },
         include: {
           items: true,
@@ -146,13 +146,13 @@ export const songsRouter = createTRPCRouter({
       })
     )
     .mutation(({ ctx, input }) => {
-      return ctx.prisma.rankableItem.create({
+      return ctx.prisma.songItem.create({
         data: {
           country: { connect: { id: input.country } },
           title: input.title,
           artist: input.artist,
           youtubeURL: input.youtube,
-          group: { connect: { id: input.itemId } },
+          groups: { connect: { id: input.itemId } },
         },
       });
     }),
