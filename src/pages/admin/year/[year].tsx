@@ -2,7 +2,11 @@ import { Button, Loader, Table, Title } from "@mantine/core";
 import type { GetServerSideProps } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import LinkBreadcrumbs from "~/components/LinkBreadcrumbs";
+import { useMemo } from "react";
+import LinkBreadcrumbs, {
+  type Link as BreadcrumbLink,
+  crumbs,
+} from "~/components/LinkBreadcrumbs";
 import StandardLayout from "~/layouts/StandardLayout";
 import { getServerAuthSession } from "~/server/auth";
 import { api } from "~/utils/api";
@@ -32,7 +36,7 @@ export default function YearAdminPage() {
     <tr
       key={i.id}
       style={{ cursor: "pointer", userSelect: "none" }}
-      onDoubleClick={onDoubleClick(i.eurovisionYearYear, i.id)}
+      onDoubleClick={onDoubleClick(i.yearId, i.id)}
     >
       <td>{i.name}</td>
       <td>{i.type}</td>
@@ -42,7 +46,7 @@ export default function YearAdminPage() {
           color="indigo"
           compact
           component={Link}
-          href={`/admin/year/${i.eurovisionYearYear}/${i.id}`}
+          href={`/admin/year/${i.yearId}/${i.id}`}
         >
           Open
         </Button>
@@ -50,9 +54,18 @@ export default function YearAdminPage() {
     </tr>
   ));
 
-  const breadcrumbs = (
-    <LinkBreadcrumbs my="md" links={[{ label: "Admin", href: "/admin" }]} />
-  );
+  const breadcrumbs = useMemo(() => {
+    const links: BreadcrumbLink[] = [crumbs.adminPage, crumbs.adminYears];
+
+    if (year.data) {
+      links.push({
+        label: year.data.year.toString(),
+        href: `/admin/year/${year.data.year}`,
+      });
+    }
+
+    return <LinkBreadcrumbs my="md" links={links} />;
+  }, [year]);
 
   if (year.isLoading || !year.data) {
     return (
@@ -68,7 +81,7 @@ export default function YearAdminPage() {
       {breadcrumbs}
 
       <Title>{year.data.year}</Title>
-      <Title order={3}>Items: {year.data?.items.length ?? 0}</Title>
+      <Title order={3}>Groups: {year.data?.items.length ?? 0}</Title>
 
       <Table striped highlightOnHover>
         <thead>

@@ -1,6 +1,10 @@
 import { Anchor, Table, Title } from "@mantine/core";
 import { useRouter } from "next/router";
-import LinkBreadcrumbs from "~/components/LinkBreadcrumbs";
+import { useMemo } from "react";
+import LinkBreadcrumbs, {
+  type Link,
+  crumbs,
+} from "~/components/LinkBreadcrumbs";
 import AddSongDialog from "~/components/Songs/AddSongDialog";
 import StandardLayout from "~/layouts/StandardLayout";
 import { api } from "~/utils/api";
@@ -19,15 +23,26 @@ export default function ItemAdminPage() {
     { enabled: !Number.isNaN(router.query.year) }
   );
 
+  const breadcrumbs = useMemo(() => {
+    const links: Link[] = [crumbs.adminPage, crumbs.adminYears];
+
+    if (item.data) {
+      links.push({
+        label: item.data.yearId.toString(),
+        href: `/admin/year/${item.data.yearId}`,
+      });
+      links.push({
+        label: item.data.name,
+        href: `/admin/year/${item.data.yearId}/${item.data.id}`,
+      });
+    }
+
+    return <LinkBreadcrumbs my="md" links={links} />;
+  }, [item]);
+
   return (
     <StandardLayout title="Year item">
-      <LinkBreadcrumbs
-        my="md"
-        links={[
-          { label: "Admin", href: "/admin" },
-          { label: `${year}`, href: `/admin/year/${year}` },
-        ]}
-      />
+      {breadcrumbs}
 
       <Title mb="md">
         {year}: {item.data?.name}
