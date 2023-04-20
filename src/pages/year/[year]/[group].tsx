@@ -19,7 +19,7 @@ import {
   type OnDragEndResponder,
 } from "react-beautiful-dnd";
 import { type Country, SongItem } from "@prisma/client";
-import { IconBrandYoutube } from "@tabler/icons-react";
+import { IconBrandYoutube, IconGripVertical } from "@tabler/icons-react";
 import FlagImage from "~/components/Countries/FlagImage";
 import PreviewPlayer from "~/components/Songs/PreviewPlayer";
 
@@ -207,6 +207,8 @@ function SongItem({ song, index }: SongItemProps) {
       >
         <IconBrandYoutube size="2.5rem" />
       </ActionIcon>
+
+      <IconGripVertical size="2.5rem" color="gray" />
     </Box>
   );
 }
