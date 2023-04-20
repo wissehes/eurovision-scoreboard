@@ -192,7 +192,17 @@ function AdminSection() {
     <>
       <Menu.Label>Admin section</Menu.Label>
       <Menu.Item component={Link} href="/admin/">
-        Manage data
+        Admin page
+      </Menu.Item>
+      <Menu.Divider />
+      <Menu.Item component={Link} href="/admin/year">
+        Years
+      </Menu.Item>
+      <Menu.Item component={Link} href="/admin/countries">
+        Countries
+      </Menu.Item>
+      <Menu.Item component={Link} href="/admin/songs">
+        Songs
       </Menu.Item>
     </>
   );

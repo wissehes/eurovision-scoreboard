@@ -22,6 +22,9 @@ export default function AdminPage() {
         <Button component={Link} href="/admin/countries">
           Countries
         </Button>
+        <Button component={Link} href="/admin/songs">
+          Songs
+        </Button>
       </Group>
     </StandardLayout>
   );
