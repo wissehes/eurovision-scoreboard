@@ -38,6 +38,7 @@ enum EurovisionType {
     SEMI_1
     SEMI_2
     NATIONAL_FINAL
+    GROUP
 }
 
 model SongItem {
