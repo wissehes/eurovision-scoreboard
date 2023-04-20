@@ -14,9 +14,13 @@ export default function PreviewPlayer({
   ...props
 }: PreviewPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
-  const audio = useRef(new Audio(previewURL));
+  const audio = useRef(new Audio());
 
   const play = () => {
+    if (!previewURL) return;
+    if (!audio.current.src) {
+      audio.current.src = previewURL;
+    }
     void audio.current.play();
     setIsPlaying(true);
   };
@@ -37,7 +41,11 @@ export default function PreviewPlayer({
   }, []);
 
   return (
-    <ActionIcon {...props} onClick={() => (isPlaying ? pause() : play())}>
+    <ActionIcon
+      disabled={!previewURL}
+      onClick={() => (isPlaying ? pause() : play())}
+      {...props}
+    >
       {isPlaying ? <IconPlayerPauseFilled /> : <IconPlayerPlayFilled />}
     </ActionIcon>
   );
