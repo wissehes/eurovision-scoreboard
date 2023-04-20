@@ -16,6 +16,7 @@ import { Form, useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { IconFile, IconUpload, IconX } from "@tabler/icons-react";
 import { create } from "zustand";
+import type { DropState } from "~/utils/DropState";
 import { useNotify } from "~/utils/Notifications";
 import { api } from "~/utils/api";
 import delay from "~/utils/delay";
@@ -28,12 +29,6 @@ interface FormValues {
   delimiter: string;
   idColName: string;
   fullnameColName: string;
-}
-
-interface DropState {
-  selectedFile: FileWithPath | null;
-  setFile: (to: FileWithPath | null) => void;
-  reset: () => void;
 }
 
 const useDropState = create<DropState>((set) => ({

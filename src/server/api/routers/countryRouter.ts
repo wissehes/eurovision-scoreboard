@@ -12,12 +12,50 @@ import { type Comma } from "csv-string/dist/types";
 import delay from "~/utils/delay";
 import { TRPCError } from "@trpc/server";
 
+const exportedJSONData = z.array(
+  z.object({
+    country: z.object({
+      id: z.string(),
+      fullname: z.string(),
+    }),
+
+    songs: z.array(
+      z.object({
+        artist: z.string(),
+        songTitle: z.string(),
+        youtubeURL: z.string(),
+      })
+    ),
+  })
+);
+
+type ExportedJSONData = z.infer<typeof exportedJSONData>;
+
 export const countryRouter = createTRPCRouter({
   getAll: publicProcedure.query(({ ctx }) => {
     return ctx.prisma.country.findMany({
       include: { _count: { select: { items: true } } },
       orderBy: { id: "asc" },
     });
+  }),
+
+  getExportJSON: adminProcedure.query(async ({ ctx }) => {
+    const data = await ctx.prisma.country.findMany({
+      include: { items: true },
+    });
+
+    const mappedData: ExportedJSONData = data.map((c) => ({
+      country: { id: c.id, fullname: c.fullname },
+      songs: c.items.map((s) => ({
+        artist: s.artist,
+        songTitle: s.title,
+        youtubeURL: s.youtubeURL,
+      })),
+    }));
+
+    return {
+      json: JSON.stringify(mappedData),
+    };
   }),
 
   getAvailableCountries: publicProcedure
@@ -87,5 +125,20 @@ export const countryRouter = createTRPCRouter({
       await ctx.prisma.country.createMany({ data: verified });
 
       return mapped;
+    }),
+
+  importFromJSON: adminProcedure
+    .input(z.object({ json: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const parsed: unknown = JSON.parse(input.json);
+      const importData = exportedJSONData.parse(parsed);
+
+      await ctx.prisma.country.createMany({
+        data: importData.map((c) => c.country),
+        skipDuplicates: true,
+      });
+
+      await delay(250);
+      return importData;
     }),
 });
