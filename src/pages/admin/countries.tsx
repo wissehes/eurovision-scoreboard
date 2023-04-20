@@ -54,7 +54,7 @@ export default function CountriesAdminPage() {
   const rows = countries.data?.map((c) => (
     <tr key={c.id}>
       <td>
-        <FlagImage code={c.isoCode} />
+        <FlagImage code={c.isoCode} maw={45} ml="sm" />
       </td>
       <td>{c.id}</td>
       <td>{c.isoCode}</td>
