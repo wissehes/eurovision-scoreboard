@@ -1,12 +1,10 @@
 import {
   ActionIcon,
-  Anchor,
   Box,
   Paper,
   Text,
   Title,
   createStyles,
-  rem,
 } from "@mantine/core";
 import { useRouter } from "next/router";
 import { useEffect, useMemo, useState } from "react";
@@ -20,10 +18,11 @@ import {
   Droppable,
   type OnDragEndResponder,
 } from "react-beautiful-dnd";
-import type { Country, RankableItem } from "@prisma/client";
+import { type Country, SongItem } from "@prisma/client";
 import { IconBrandYoutube } from "@tabler/icons-react";
+import FlagImage from "~/components/Countries/FlagImage";
 
-type Song = RankableItem & {
+type Song = SongItem & {
   country: Country;
 };
 
@@ -100,43 +99,45 @@ export default function ItemAdminPage() {
       </Title>
 
       <DragDropContext onDragEnd={onDragEnd}>
-        <Droppable droppableId={`${year}-droppable`}>
-          {(provided, _snapshot) => (
-            <Paper
-              {...provided.droppableProps}
-              ref={provided.innerRef}
-              p="md"
-              shadow="md"
-              radius="md"
-              withBorder
-              style={{ userSelect: "none" }}
-            >
-              <Title order={5} mb="md">
-                Songs
-              </Title>
+        {localItems && (
+          <Droppable droppableId={`${year}-droppable`}>
+            {(provided, _snapshot) => (
+              <Paper
+                {...provided.droppableProps}
+                ref={provided.innerRef}
+                p="md"
+                shadow="md"
+                radius="md"
+                withBorder
+                style={{ userSelect: "none" }}
+              >
+                <Title order={5} mb="md">
+                  Songs
+                </Title>
 
-              {localItems?.map((item, index) => (
-                <Draggable key={item.id} draggableId={item.id} index={index}>
-                  {(provided, _snapshot) => (
-                    <Paper
-                      {...provided.draggableProps}
-                      {...provided.dragHandleProps}
-                      ref={provided.innerRef}
-                      p="xs"
-                      mb="md"
-                      radius="sm"
-                      shadow="md"
-                      withBorder
-                    >
-                      <SongItem song={item} index={index} />
-                    </Paper>
-                  )}
-                </Draggable>
-              ))}
-              {provided.placeholder}
-            </Paper>
-          )}
-        </Droppable>
+                {localItems.map((item, index) => (
+                  <Draggable key={item.id} draggableId={item.id} index={index}>
+                    {(provided, _snapshot) => (
+                      <Paper
+                        {...provided.draggableProps}
+                        {...provided.dragHandleProps}
+                        ref={provided.innerRef}
+                        p="xs"
+                        mb="md"
+                        radius="sm"
+                        shadow="md"
+                        withBorder
+                      >
+                        <SongItem song={item} index={index} />
+                      </Paper>
+                    )}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
+              </Paper>
+            )}
+          </Droppable>
+        )}
       </DragDropContext>
     </StandardLayout>
   );
@@ -160,7 +161,7 @@ const useStyles = createStyles(() => ({
     paddingRight: "1rem",
     paddingLeft: "1rem",
 
-    marginRight: "1rem",
+    width: "2.5rem",
   },
 
   youtubeIcon: {
@@ -179,6 +180,8 @@ function SongItem({ song, index }: SongItemProps) {
           {index + 1}
         </Text>
       </Box>
+
+      <FlagImage code={song.country.isoCode} maw={45} mx="sm" />
       <Box>
         <Text size="lg" weight="bold">
           {song.title}
@@ -193,6 +196,7 @@ function SongItem({ song, index }: SongItemProps) {
         component={"a"}
         href={song.youtubeURL}
         target="_blank"
+        title={`Watch ${song.title} on YouTube`}
       >
         <IconBrandYoutube size="2.5rem" />
       </ActionIcon>
