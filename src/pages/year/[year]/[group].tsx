@@ -21,6 +21,7 @@ import {
 import { type Country, SongItem } from "@prisma/client";
 import { IconBrandYoutube } from "@tabler/icons-react";
 import FlagImage from "~/components/Countries/FlagImage";
+import PreviewPlayer from "~/components/Songs/PreviewPlayer";
 
 type Song = SongItem & {
   country: Country;
@@ -189,8 +190,14 @@ function SongItem({ song, index }: SongItemProps) {
         <Text size="md">{song.artist}</Text>
       </Box>
 
-      <ActionIcon
+      <PreviewPlayer
+        previewURL={song.previewURL ?? undefined}
+        color="pink"
+        size="xl"
         className={classes.youtubeIcon}
+      />
+
+      <ActionIcon
         color="red"
         size="xl"
         component={"a"}
