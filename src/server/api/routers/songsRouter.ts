@@ -1,3 +1,4 @@
+import { type PrismaPromise } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
@@ -8,6 +9,8 @@ import {
   adminProcedure,
   protectedProcedure,
 } from "~/server/api/trpc";
+import delay from "~/utils/delay";
+import { fetchiTunesData } from "~/utils/fetchiTunesData";
 
 export const songsRouter = createTRPCRouter({
   getAll: publicProcedure.query(({ ctx }) => {
@@ -170,6 +173,34 @@ export const songsRouter = createTRPCRouter({
     const songs = await prisma.songItem.findMany({
       where: { previewURL: null },
     });
+
+    const transactions: PrismaPromise<unknown>[] = [];
+
+    for (const song of songs) {
+      try {
+        const { data } = await fetchiTunesData(song);
+        const item = data.results.find(
+          (s) => s.artworkUrl100 && s.previewUrl !== undefined
+        );
+        if (!item || !item.previewUrl) continue;
+        console.log(`[SONG_UPDATER] ${song.artist} - ${song.title} updated`);
+        transactions.push(
+          prisma.songItem.update({
+            where: { id: song.id },
+            data: {
+              previewURL: item.previewUrl,
+              artworkURL: item.artworkUrl100,
+            },
+          })
+        );
+
+        await delay(500);
+      } catch {
+        continue;
+      }
+    }
+
+    await prisma.$transaction(transactions);
 
     return true;
   }),
