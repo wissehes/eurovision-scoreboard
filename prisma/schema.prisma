@@ -17,19 +17,19 @@ datasource db {
 model EurovisionYear {
     year Int @id
 
-    items EurovisionRankable[]
+    items EurovisionGroup[]
 }
 
-model EurovisionRankable {
+model EurovisionGroup {
     id String @id @default(cuid())
 
-    year               EurovisionYear @relation(fields: [eurovisionYearYear], references: [year])
-    eurovisionYearYear Int
+    year   EurovisionYear @relation(fields: [yearId], references: [year])
+    yearId Int
 
     name String
     type EurovisionType
 
-    items    RankableItem[]
+    items    SongItem[]
     rankings UserRanking[]
 }
 
@@ -40,21 +40,19 @@ enum EurovisionType {
     NATIONAL_FINAL
 }
 
-model RankableItem {
+model SongItem {
     id String @id @default(cuid())
 
-    artist  String
-    title   String
-    country Country @relation(fields: [countryId], references: [id])
+    artist String
+    title  String
+
+    country   Country @relation(fields: [countryId], references: [id])
+    countryId String
 
     youtubeURL String  @db.Text()
     previewURL String? @db.Text()
-    countryId  String
 
-    group   EurovisionRankable? @relation(fields: [groupId], references: [id])
-    groupId String?
-
-    // rankings   UserRanking[]
+    groups   EurovisionGroup[]
     rankings RankedSong[]
 }
 
@@ -63,7 +61,7 @@ model UserRanking {
     user   User   @relation(fields: [userId], references: [id])
     userId String
 
-    group   EurovisionRankable @relation(fields: [groupId], references: [id])
+    group   EurovisionGroup @relation(fields: [groupId], references: [id])
     groupId String
 
     rankedSongs RankedSong[]
@@ -74,7 +72,7 @@ model RankedSong {
 
     rank Int
 
-    song   RankableItem @relation(fields: [songId], references: [id])
+    song   SongItem @relation(fields: [songId], references: [id])
     songId String
 
     ranking   UserRanking @relation(fields: [rankingId], references: [id], onDelete: Cascade)
@@ -84,14 +82,9 @@ model RankedSong {
 model Country {
     id       String @id @default(cuid())
     fullname String
+    isoCode  String @default("")
 
-    items RankableItem[]
-}
-
-model Example {
-    id        String   @id @default(cuid())
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    items SongItem[]
 }
 
 // Necessary for Next auth
