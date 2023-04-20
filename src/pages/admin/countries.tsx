@@ -1,6 +1,8 @@
 import { Button, Group, Table, Text, TextInput, Title } from "@mantine/core";
 import { Form, useForm } from "@mantine/form";
 import { type GetServerSideProps } from "next";
+import ExportJSONButton from "~/components/Countries/ExportJSONButton";
+import ImportJSONButton from "~/components/Countries/ImportJSONButton";
 import UploadCSVModal from "~/components/Countries/UploadCSVModal";
 import LinkBreadcrumbs from "~/components/LinkBreadcrumbs";
 import StandardLayout from "~/layouts/StandardLayout";
@@ -81,9 +83,12 @@ export default function CountriesAdminPage() {
             </Button>
           </Group>
         </Form>
-        <UploadCSVModal
-          buttonProps={{ color: "indigo", variant: "outline", mt: "xl" }}
-        />
+      </Group>
+
+      <Group mt="md">
+        <UploadCSVModal buttonProps={{ color: "indigo", variant: "outline" }} />
+        <ExportJSONButton color="cyan" variant="outline" />
+        <ImportJSONButton color="cyan" variant="outline" />
       </Group>
 
       <Table striped>

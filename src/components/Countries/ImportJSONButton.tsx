@@ -9,13 +9,14 @@ import {
   Stack,
   Anchor,
 } from "@mantine/core";
-import { type FileWithPath, MIME_TYPES, Dropzone } from "@mantine/dropzone";
+import { type FileWithPath, Dropzone } from "@mantine/dropzone";
 import { useDisclosure } from "@mantine/hooks";
 import { IconFile, IconUpload, IconX } from "@tabler/icons-react";
 import { create } from "zustand";
 import type { DropState } from "~/utils/DropState";
 import { useNotify } from "~/utils/Notifications";
 import { api } from "~/utils/api";
+import delay from "~/utils/delay";
 
 const useDropState = create<DropState>((set) => ({
   selectedFile: null,
@@ -34,6 +35,13 @@ export default function ImportJSONButton(props: ButtonProps) {
 
   const mutation = api.countries.importFromJSON.useMutation({
     onError: notify.onError,
+    onSuccess: async () => {
+      close();
+      await context.countries.getAll.invalidate();
+      await delay(250);
+      resetFile();
+      mutation.reset();
+    },
   });
 
   const upload = async () => {
@@ -68,7 +76,7 @@ export default function ImportJSONButton(props: ButtonProps) {
             <Button
               onClick={() => void upload()}
               leftIcon={<IconUpload size="1rem" />}
-              loading={mutation.isLoading && mutation.isSuccess}
+              loading={mutation.isLoading || mutation.isSuccess}
             >
               Upload
             </Button>
