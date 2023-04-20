@@ -40,7 +40,7 @@ export const songsRouter = createTRPCRouter({
       }
 
       const myRanking = await ctx.prisma.userRanking.findFirst({
-        where: { userId },
+        where: { userId, groupId: group.id },
         include: {
           rankedSongs: {
             include: {
@@ -58,7 +58,7 @@ export const songsRouter = createTRPCRouter({
       });
 
       const unrankedSongs = group.items.filter(
-        (a) => !myRanking?.rankedSongs.find((b) => a.id == b.id)
+        (a) => !myRanking?.rankedSongs.find((b) => a.id == b.song.id)
       );
 
       return {
