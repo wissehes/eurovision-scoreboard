@@ -10,6 +10,15 @@ import {
 } from "~/server/api/trpc";
 
 export const songsRouter = createTRPCRouter({
+  getAll: publicProcedure.query(({ ctx }) => {
+    return ctx.prisma.songItem.findMany({
+      include: {
+        country: true,
+        groups: { include: { year: true } },
+      },
+    });
+  }),
+
   getForYearItem: publicProcedure
     .input(z.object({ year: z.number(), id: z.string() }))
     .query(({ ctx, input }) => {
@@ -156,4 +165,12 @@ export const songsRouter = createTRPCRouter({
         },
       });
     }),
+
+  updatePreviews: adminProcedure.mutation(async ({ ctx: { prisma } }) => {
+    const songs = await prisma.songItem.findMany({
+      where: { previewURL: null },
+    });
+
+    return true;
+  }),
 });
