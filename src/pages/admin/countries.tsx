@@ -2,6 +2,7 @@ import { Button, Group, Table, Text, TextInput, Title } from "@mantine/core";
 import { Form, useForm } from "@mantine/form";
 import { type GetServerSideProps } from "next";
 import ExportJSONButton from "~/components/Countries/ExportJSONButton";
+import FlagImage from "~/components/Countries/FlagImage";
 import ImportJSONButton from "~/components/Countries/ImportJSONButton";
 import UploadCSVModal from "~/components/Countries/UploadCSVModal";
 import LinkBreadcrumbs from "~/components/LinkBreadcrumbs";
@@ -52,7 +53,11 @@ export default function CountriesAdminPage() {
 
   const rows = countries.data?.map((c) => (
     <tr key={c.id}>
+      <td>
+        <FlagImage code={c.isoCode} />
+      </td>
       <td>{c.id}</td>
+      <td>{c.isoCode}</td>
       <td align="left">{c.fullname}</td>
       <td>{c._count.items}</td>
     </tr>
@@ -94,7 +99,9 @@ export default function CountriesAdminPage() {
       <Table striped>
         <thead>
           <tr>
+            <th>Flag</th>
             <th>ID</th>
+            <th>ISO Code</th>
             <th align="left">Full name</th>
             <th># of songs</th>
           </tr>
