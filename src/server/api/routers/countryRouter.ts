@@ -65,7 +65,7 @@ export const countryRouter = createTRPCRouter({
         include: { _count: { select: { items: true } } },
         orderBy: { id: "asc" },
       });
-      const group = await ctx.prisma.eurovisionRankable.findUnique({
+      const group = await ctx.prisma.eurovisionGroup.findUnique({
         where: { id: input.groupId },
         select: { items: { select: { countryId: true } } },
       });
@@ -133,12 +133,37 @@ export const countryRouter = createTRPCRouter({
       const parsed: unknown = JSON.parse(input.json);
       const importData = exportedJSONData.parse(parsed);
 
-      await ctx.prisma.country.createMany({
+      const songsWithCountry: {
+        songTitle: string;
+        artist: string;
+        youtubeURL: string;
+        countryId: string;
+      }[] = [];
+
+      for (const country of importData) {
+        for (const song of country.songs) {
+          songsWithCountry.push({
+            countryId: country.country.id,
+            ...song,
+          });
+        }
+      }
+
+      const createCountries = ctx.prisma.country.createMany({
         data: importData.map((c) => c.country),
         skipDuplicates: true,
       });
 
+      const createSongs = ctx.prisma.songItem.createMany({
+        data: songsWithCountry.map((s) => ({
+          artist: s.artist,
+          title: s.songTitle,
+          youtubeURL: s.youtubeURL,
+          countryId: s.countryId,
+        })),
+      });
+
       await delay(250);
-      return importData;
+      return ctx.prisma.$transaction([createCountries, createSongs]);
     }),
 });
