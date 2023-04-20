@@ -51,6 +51,7 @@ model SongItem {
 
     youtubeURL String  @db.Text()
     previewURL String? @db.Text()
+    artworkURL String? @db.Text()
 
     groups   EurovisionGroup[]
     rankings RankedSong[]
