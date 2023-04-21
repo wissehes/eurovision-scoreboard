@@ -1,11 +1,4 @@
-import {
-  Button,
-  Checkbox,
-  LoadingOverlay,
-  Modal,
-  Switch,
-  Text,
-} from "@mantine/core";
+import { Button, Checkbox, LoadingOverlay, Modal, Switch } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { IconPlus } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
