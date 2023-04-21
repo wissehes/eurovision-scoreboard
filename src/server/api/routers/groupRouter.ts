@@ -45,4 +45,17 @@ export const groupRouter = createTRPCRouter({
         },
       });
     }),
+
+  setSongs: adminProcedure
+    .input(z.object({ songIds: z.string().array(), groupId: z.string() }))
+    .mutation(({ ctx, input }) => {
+      return ctx.prisma.eurovisionGroup.update({
+        where: { id: input.groupId },
+        data: {
+          items: {
+            set: input.songIds.map((s) => ({ id: s })),
+          },
+        },
+      });
+    }),
 });
