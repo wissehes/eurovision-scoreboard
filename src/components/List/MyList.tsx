@@ -49,13 +49,20 @@ const Item = forwardRef<HTMLButtonElement, UnstyledButtonProps>(
 );
 Item.displayName = "MyList.Item";
 
-const Chevron = ({ ml = true }: { ml?: boolean }) => (
+const Chevron = ({
+  ml = true,
+  className,
+}: {
+  ml?: boolean;
+  className?: string;
+}) => (
   <Box
     style={{
       display: "flex",
       alignItems: "center",
       marginLeft: ml ? "auto" : undefined,
     }}
+    className={className}
   >
     <IconChevronRight size="2rem" color="gray" />
   </Box>
