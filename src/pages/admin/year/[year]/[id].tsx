@@ -1,6 +1,7 @@
-import { Anchor, Table, Title } from "@mantine/core";
+import { Anchor, Group, Table, Title } from "@mantine/core";
 import { useRouter } from "next/router";
 import { useMemo } from "react";
+import AddExistingSongModal from "~/components/Groups/AddExistingSongModal";
 import LinkBreadcrumbs, {
   type Link,
   crumbs,
@@ -20,7 +21,7 @@ export default function ItemAdminPage() {
       year,
       id: groupId as string,
     },
-    { enabled: !Number.isNaN(router.query.year) }
+    { enabled: !Number.isNaN(year) }
   );
 
   const breadcrumbs = useMemo(() => {
@@ -47,9 +48,16 @@ export default function ItemAdminPage() {
       <Title mb="md">
         {year}: {item.data?.name}
       </Title>
-
-      <>{!!groupId && <AddSongDialog id={groupId} year={year} />}</>
-
+      <Group>
+        <>
+          {!!groupId && (
+            <>
+              <AddSongDialog id={groupId} year={year} />
+              <AddExistingSongModal groupId={groupId} year={year} />
+            </>
+          )}
+        </>
+      </Group>
       <Table mt="md">
         <thead>
           <tr>
