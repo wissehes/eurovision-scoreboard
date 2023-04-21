@@ -1,4 +1,11 @@
-import { Button, Checkbox, LoadingOverlay, Modal, Text } from "@mantine/core";
+import {
+  Button,
+  Checkbox,
+  LoadingOverlay,
+  Modal,
+  Switch,
+  Text,
+} from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { IconPlus } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
@@ -18,8 +25,12 @@ export default function AddExistingSongModal({
   const notify = useNotify();
   const context = api.useContext();
 
-  const songs = api.songs.getForYear.useQuery({ year }, { enabled: opened });
   const [selectedSongs, setSelectedSongs] = useState<string[]>([]);
+  const [shouldFilter, setFilter] = useState(false);
+  const songs = api.songs.getForYear.useQuery(
+    { year, filter: shouldFilter },
+    { enabled: opened }
+  );
 
   useEffect(() => {
     if (!songs.data) return;
@@ -56,7 +67,15 @@ export default function AddExistingSongModal({
         <LoadingOverlay
           visible={mutatation.isLoading || mutatation.isSuccess}
         />
-        <Text mb="md">Choose songs to add.</Text>
+        {/* <Text>Choose songs to add.</Text> */}
+
+        <Switch
+          label="This year only"
+          checked={shouldFilter}
+          onChange={(e) => setFilter(e.currentTarget.checked)}
+          mb="md"
+        />
+
         <Checkbox.Group value={selectedSongs} onChange={setSelectedSongs}>
           {songs.data?.map((s) => (
             <Checkbox
