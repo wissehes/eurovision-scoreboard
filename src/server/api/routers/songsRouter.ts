@@ -22,6 +22,28 @@ export const songsRouter = createTRPCRouter({
     });
   }),
 
+  getForYear: publicProcedure
+    .input(z.object({ year: z.number() }))
+    .query(async ({ ctx, input }) => {
+      return ctx.prisma.songItem.findMany({
+        where: {
+          groups: {
+            some: {
+              yearId: input.year,
+            },
+          },
+        },
+        include: {
+          groups: {
+            select: {
+              id: true,
+            },
+          },
+          country: true,
+        },
+      });
+    }),
+
   getForYearItem: publicProcedure
     .input(z.object({ year: z.number(), id: z.string() }))
     .query(({ ctx, input }) => {
