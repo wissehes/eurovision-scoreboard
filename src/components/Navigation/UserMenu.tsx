@@ -6,12 +6,22 @@ import {
   UnstyledButton,
   createStyles,
   rem,
+  useMantineTheme,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { signIn, signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import ProfileAvatar from "../ProfileAvatar";
-import { IconChevronDown, IconLogout } from "@tabler/icons-react";
+import {
+  type Icon,
+  IconChevronDown,
+  IconLogout,
+  IconUser,
+  IconDashboard,
+  IconCalendar,
+  IconWorld,
+  IconMusic,
+} from "@tabler/icons-react";
 
 const useStyles = createStyles((theme) => ({
   header: {
@@ -119,6 +129,12 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
+interface DropdownLink {
+  label: string;
+  href: string;
+  Icon?: Icon;
+}
+
 export default function UserMenu() {
   const { classes, cx, theme } = useStyles();
   const [opened, { open, close }] = useDisclosure(false);
@@ -167,8 +183,9 @@ export default function UserMenu() {
       </Menu.Target>
 
       <Menu.Dropdown>
-        {session?.user.role == "ADMIN" && <AdminSection />}
+        <UserSection />
         <Menu.Divider />
+        {session?.user.role == "ADMIN" && <AdminSection />}
 
         <Menu.Item
           icon={
@@ -187,23 +204,51 @@ export default function UserMenu() {
   );
 }
 
+function UserSection() {
+  const theme = useMantineTheme();
+  return (
+    <>
+      <Menu.Label>My account</Menu.Label>
+      <Menu.Item
+        component={Link}
+        href="/user/me"
+        icon={
+          <IconUser size="0.9rem" color={theme.colors.blue[6]} stroke={1.5} />
+        }
+      >
+        My Account
+      </Menu.Item>
+    </>
+  );
+}
+
+const adminItems: DropdownLink[] = [
+  { label: "Admin page", href: "/admin", Icon: IconDashboard },
+  { label: "Years", href: "/admin/year", Icon: IconCalendar },
+  { label: "Countries", href: "/admin/countries", Icon: IconWorld },
+  { label: "Songs", href: "/admin/songs", Icon: IconMusic },
+];
+
 function AdminSection() {
+  const theme = useMantineTheme();
   return (
     <>
       <Menu.Label>Admin section</Menu.Label>
-      <Menu.Item component={Link} href="/admin/">
-        Admin page
-      </Menu.Item>
+      {adminItems.map((i) => (
+        <Menu.Item
+          key={i.href}
+          component={Link}
+          href={i.href}
+          icon={
+            i.Icon ? (
+              <i.Icon size="0.9rem" color={theme.colors.blue[6]} stroke={1.5} />
+            ) : undefined
+          }
+        >
+          {i.label}
+        </Menu.Item>
+      ))}
       <Menu.Divider />
-      <Menu.Item component={Link} href="/admin/year">
-        Years
-      </Menu.Item>
-      <Menu.Item component={Link} href="/admin/countries">
-        Countries
-      </Menu.Item>
-      <Menu.Item component={Link} href="/admin/songs">
-        Songs
-      </Menu.Item>
     </>
   );
 }
