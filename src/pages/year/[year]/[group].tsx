@@ -22,6 +22,12 @@ import { type Country, SongItem } from "@prisma/client";
 import { IconBrandYoutube, IconGripVertical } from "@tabler/icons-react";
 import FlagImage from "~/components/Countries/FlagImage";
 import PreviewPlayer from "~/components/Songs/PreviewPlayer";
+import type { GetServerSideProps, InferGetServerSidePropsType } from "next";
+import { getServerAuthSession } from "~/server/auth";
+import {
+  type RankingData,
+  getUserRanking,
+} from "~/utils/ranking/getUserRanking";
 
 type Song = SongItem & {
   country: Country;
@@ -29,7 +35,42 @@ type Song = SongItem & {
 
 type Items = Song[];
 
-export default function ItemAdminPage() {
+export const getServerSideProps: GetServerSideProps<{
+  data: RankingData;
+}> = async (ctx) => {
+  const session = await getServerAuthSession(ctx);
+  if (!session)
+    return { redirect: { destination: "/api/auth/signin", permanent: false } };
+
+  const year = ctx.params?.year;
+  const yearNumber = Number(year);
+  const group = ctx.params?.group;
+
+  if (
+    !year ||
+    Array.isArray(year) ||
+    Number.isNaN(yearNumber) ||
+    !group ||
+    Array.isArray(group)
+  )
+    return { notFound: true };
+
+  try {
+    const data = await getUserRanking({
+      userId: session.user.id,
+      groupId: group,
+      year: yearNumber,
+    });
+
+    return { props: { session, data: data } };
+  } catch {
+    return { notFound: true };
+  }
+};
+
+export default function RankingPage({
+  data: initialData,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const router = useRouter();
 
   const year = Number(router.query.year as string | undefined);
@@ -40,7 +81,7 @@ export default function ItemAdminPage() {
       year,
       id: groupId as string,
     },
-    { enabled: !Number.isNaN(year) }
+    { enabled: !Number.isNaN(year), initialData }
   );
 
   const update = api.songs.saveRanking.useMutation();
@@ -50,7 +91,8 @@ export default function ItemAdminPage() {
   useEffect(() => {
     if (!item.data) return;
     if (item.data.myRanking?.rankedSongs.length) {
-      setLocalItems(item.data.myRanking.rankedSongs.map((a) => a.song));
+      const ranked = item.data.myRanking.rankedSongs.map((a) => a.song);
+      setLocalItems([...ranked, ...item.data.unrankedSongs]);
     } else {
       setLocalItems(item.data.unrankedSongs);
     }
@@ -59,7 +101,6 @@ export default function ItemAdminPage() {
   const breadcrumbs = useMemo(() => {
     const links: Link[] = [
       { label: "Home", href: "/" },
-      { label: "All years", href: "/year" },
       { label: `${year}`, href: `/year/${year}` },
     ];
 
