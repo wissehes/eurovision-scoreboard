@@ -1,37 +1,63 @@
 import { Loader, Text, Title } from "@mantine/core";
+import type { EurovisionGroup, EurovisionYear, SongItem } from "@prisma/client";
+import type { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useMemo } from "react";
-import LinkBreadcrumbs from "~/components/LinkBreadcrumbs";
+import LinkBreadcrumbs, { crumbs } from "~/components/LinkBreadcrumbs";
 import MyList from "~/components/List/MyList";
 import StandardLayout from "~/layouts/StandardLayout";
+import { prisma } from "~/server/db";
 import { api } from "~/utils/api";
 
-export default function YearPage() {
+type YearData = EurovisionYear & {
+  items: (EurovisionGroup & {
+    items: SongItem[];
+  })[];
+};
+
+export const getServerSideProps: GetServerSideProps<{
+  yearData: YearData;
+}> = async (ctx) => {
+  const year = ctx.params?.year;
+  const yearNumber = Number(year);
+  if (!year || Array.isArray(year) || Number.isNaN(yearNumber))
+    return { notFound: true };
+
+  const yearData = await prisma.eurovisionYear.findUnique({
+    where: { year: yearNumber },
+    include: {
+      items: { include: { items: true }, orderBy: { type: "asc" } },
+    },
+  });
+  if (!yearData) return { notFound: true };
+
+  return { props: { yearData } };
+};
+
+export default function YearPage({
+  yearData,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const router = useRouter();
 
+  const yearN = router.query.year as string | undefined;
+
   const year = api.years.get.useQuery(
+    { year: Number(yearN) },
     {
-      year: Number(router.query.year as string),
-    },
-    { enabled: !!router.query.year && !Number.isNaN(router.query.year) }
+      enabled: !!router.query.year && !Number.isNaN(yearN),
+      initialData: yearData,
+    }
   );
 
   const breadcrumbs = useMemo(() => {
     const links: { label: string; href: string }[] = [
-      { label: "Home", href: "/" },
-      { label: "All years", href: "/year" },
+      crumbs.homePage,
+      { label: yearN ?? "", href: `/year/${yearN ?? ""}` },
     ];
 
-    if (year.data) {
-      links.push({
-        label: year.data?.year.toString(),
-        href: `/year/${year.data?.year}`,
-      });
-    }
-
     return <LinkBreadcrumbs my="md" links={links} />;
-  }, [year.data]);
+  }, [yearN]);
 
   if (year.isLoading || !year.data) {
     return (
@@ -66,18 +92,13 @@ export default function YearPage() {
             <MyList.Chevron ml={false} />
           </MyList.Item>
         ))}
-      </MyList>
 
-      {/* <Table striped highlightOnHover>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th># of songs</th>
-            <th align="right">Actions</th>
-          </tr>
-        </thead>
-        <tbody>{rows}</tbody>
-      </Table> */}
+        {!year.isLoading && year.data?.items.length == 0 && (
+          <Title order={3} style={{ padding: "1rem", textAlign: "center" }}>
+            <i>No items yet...</i>
+          </Title>
+        )}
+      </MyList>
     </StandardLayout>
   );
 }
