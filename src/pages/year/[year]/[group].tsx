@@ -74,7 +74,8 @@ export default function ItemAdminPage() {
   }, [item.data, year]);
 
   const onDragEnd: OnDragEndResponder = (result) => {
-    if (!result.destination) return;
+    if (!result.destination || result.source.index == result.destination.index)
+      return;
     if (!localItems) return;
 
     const newItems = [...localItems];
@@ -101,12 +102,13 @@ export default function ItemAdminPage() {
 
       <DragDropContext onDragEnd={onDragEnd}>
         {localItems && (
-          <Droppable droppableId={`${year}-droppable`}>
+          <Droppable droppableId="droppable-ranked">
             {(provided, _snapshot) => (
               <Paper
                 {...provided.droppableProps}
                 ref={provided.innerRef}
                 p="md"
+                mb="md"
                 shadow="md"
                 radius="md"
                 withBorder
@@ -176,39 +178,41 @@ function SongItem({ song, index }: SongItemProps) {
 
   return (
     <Box className={classes.root}>
-      <Box className={classes.rank}>
-        <Text size="xl" weight="bold">
-          {index + 1}
-        </Text>
-      </Box>
+      <>
+        <Box className={classes.rank}>
+          <Text size="xl" weight="bold">
+            {index + 1}
+          </Text>
+        </Box>
 
-      <FlagImage code={song.country.isoCode} maw={45} mx="sm" />
-      <Box>
-        <Text size="lg" weight="bold">
-          {song.title}
-        </Text>
-        <Text size="md">{song.artist}</Text>
-      </Box>
+        <FlagImage code={song.country.isoCode} maw={45} mx="sm" />
+        <Box>
+          <Text size="lg" weight="bold">
+            {song.title}
+          </Text>
+          <Text size="md">{song.artist}</Text>
+        </Box>
 
-      <PreviewPlayer
-        previewURL={song.previewURL ?? undefined}
-        color="pink"
-        size="xl"
-        className={classes.youtubeIcon}
-      />
+        <PreviewPlayer
+          previewURL={song.previewURL ?? undefined}
+          color="pink"
+          size="xl"
+          className={classes.youtubeIcon}
+        />
 
-      <ActionIcon
-        color="red"
-        size="xl"
-        component={"a"}
-        href={song.youtubeURL}
-        target="_blank"
-        title={`Watch ${song.title} on YouTube`}
-      >
-        <IconBrandYoutube size="2.5rem" />
-      </ActionIcon>
+        <ActionIcon
+          color="red"
+          size="xl"
+          component={"a"}
+          href={song.youtubeURL}
+          target="_blank"
+          title={`Watch ${song.title} on YouTube`}
+        >
+          <IconBrandYoutube size="2.5rem" />
+        </ActionIcon>
 
-      <IconGripVertical size="2.5rem" color="gray" />
+        <IconGripVertical size="2.5rem" color="gray" />
+      </>
     </Box>
   );
 }
