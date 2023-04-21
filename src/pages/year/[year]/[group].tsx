@@ -1,10 +1,12 @@
 import {
   ActionIcon,
   Box,
+  Group,
   Paper,
   Text,
   Title,
   createStyles,
+  rem,
 } from "@mantine/core";
 import { useRouter } from "next/router";
 import { useEffect, useMemo, useState } from "react";
@@ -19,7 +21,7 @@ import {
   type OnDragEndResponder,
 } from "react-beautiful-dnd";
 import { type Country, SongItem } from "@prisma/client";
-import { IconBrandYoutube, IconGripVertical } from "@tabler/icons-react";
+import { IconBrandYoutube } from "@tabler/icons-react";
 import FlagImage from "~/components/Countries/FlagImage";
 import PreviewPlayer from "~/components/Songs/PreviewPlayer";
 import type { GetServerSideProps, InferGetServerSidePropsType } from "next";
@@ -192,7 +194,7 @@ interface SongItemProps {
   index: number;
 }
 
-const useStyles = createStyles(() => ({
+const useStyles = createStyles((theme) => ({
   root: {
     display: "flex",
     alignItems: "center",
@@ -208,9 +210,21 @@ const useStyles = createStyles(() => ({
     width: "2.5rem",
   },
 
-  youtubeIcon: {
+  icon: {
     marginLeft: "auto",
     marginRight: "1.5rem",
+    [theme.fn.smallerThan("xs")]: {
+      marginRight: "0.5rem",
+      flexDirection: "column",
+    },
+  },
+
+  flag: {
+    maxWidth: rem(45),
+    marginRight: rem(25),
+    [theme.fn.smallerThan("xs")]: {
+      marginRight: rem(10),
+    },
   },
 }));
 
@@ -226,7 +240,7 @@ function SongItem({ song, index }: SongItemProps) {
           </Text>
         </Box>
 
-        <FlagImage code={song.country.isoCode} maw={45} mx="sm" />
+        <FlagImage code={song.country.isoCode} className={classes.flag} />
         <Box>
           <Text size="lg" weight="bold">
             {song.title}
@@ -234,25 +248,24 @@ function SongItem({ song, index }: SongItemProps) {
           <Text size="md">{song.artist}</Text>
         </Box>
 
-        <PreviewPlayer
-          previewURL={song.previewURL ?? undefined}
-          color="pink"
-          size="xl"
-          className={classes.youtubeIcon}
-        />
+        <Group className={classes.icon} position="right">
+          <PreviewPlayer
+            previewURL={song.previewURL ?? undefined}
+            color="pink"
+            size="md"
+          />
 
-        <ActionIcon
-          color="red"
-          size="xl"
-          component={"a"}
-          href={song.youtubeURL}
-          target="_blank"
-          title={`Watch ${song.title} on YouTube`}
-        >
-          <IconBrandYoutube size="2.5rem" />
-        </ActionIcon>
-
-        <IconGripVertical size="2.5rem" color="gray" />
+          <ActionIcon
+            color="red"
+            size="md"
+            component={"a"}
+            href={song.youtubeURL}
+            target="_blank"
+            title={`Watch ${song.title} on YouTube`}
+          >
+            <IconBrandYoutube />
+          </ActionIcon>
+        </Group>
       </>
     </Box>
   );
