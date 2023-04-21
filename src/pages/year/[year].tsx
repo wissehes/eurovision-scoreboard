@@ -61,7 +61,7 @@ export default function YearPage({
 
   if (year.isLoading || !year.data) {
     return (
-      <StandardLayout title="Year items">
+      <StandardLayout title={`${yearN ?? ""}`}>
         {breadcrumbs}
         <Loader />
       </StandardLayout>
@@ -69,7 +69,7 @@ export default function YearPage({
   }
 
   return (
-    <StandardLayout title="Year items">
+    <StandardLayout title={`${year.data.year}`}>
       {breadcrumbs}
 
       <Title mb="md">{year.data.year}</Title>
