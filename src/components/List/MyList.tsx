@@ -5,6 +5,7 @@ import {
   createPolymorphicComponent,
   type UnstyledButtonProps,
   Box,
+  type PaperProps,
 } from "@mantine/core";
 import { IconChevronRight } from "@tabler/icons-react";
 import React, { forwardRef } from "react";
@@ -65,3 +66,20 @@ MyList.Item = createPolymorphicComponent<"button", UnstyledButtonProps>(Item);
 MyList.Chevron = Chevron;
 
 // MyList.displayName = "MYList!";
+
+export const MyListWithRef = forwardRef<HTMLDivElement, PaperProps>(
+  ({ children, ...others }, ref) => (
+    <Paper
+      p="md"
+      shadow="md"
+      radius="md"
+      withBorder
+      style={{ userSelect: "none" }}
+      ref={ref}
+      {...others}
+    >
+      <Stack>{children}</Stack>
+    </Paper>
+  )
+);
+MyListWithRef.displayName = "MyList";
