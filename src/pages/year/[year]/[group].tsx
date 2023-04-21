@@ -136,7 +136,7 @@ export default function RankingPage({
   };
 
   return (
-    <StandardLayout title="Year item">
+    <StandardLayout title={`${item.data.name} - ${item.data.year}`}>
       {breadcrumbs}
 
       <Title mb="md">
@@ -157,9 +157,10 @@ export default function RankingPage({
                 withBorder
                 style={{ userSelect: "none" }}
               >
-                <Title order={5} mb="md">
-                  Songs
-                </Title>
+                <Title order={4}>Songs</Title>
+                <Text mb="md" color="dimmed">
+                  Drag to rearrange to your liking.
+                </Text>
 
                 {localItems.map((item, index) => (
                   <Draggable key={item.id} draggableId={item.id} index={index}>
