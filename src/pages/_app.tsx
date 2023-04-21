@@ -9,6 +9,7 @@ import "~/styles/globals.css";
 import Head from "next/head";
 import { MantineProvider } from "@mantine/core";
 import { Notifications } from "@mantine/notifications";
+import NavigationTransition from "~/components/Navigation/NavigationTransition";
 
 const MyApp: AppType<{ session: Session | null }> = ({
   Component,
@@ -30,6 +31,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
           }}
         >
           <Notifications />
+          <NavigationTransition />
           <Component {...pageProps} />
         </MantineProvider>
       </SessionProvider>
