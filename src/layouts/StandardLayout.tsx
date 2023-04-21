@@ -5,13 +5,15 @@ import { Container } from "@mantine/core";
 export default function StandardLayout({
   title,
   children,
+  description,
 }: {
   title: string;
+  description?: string;
   children?: JSX.Element | JSX.Element[] | string | undefined;
 }) {
   return (
     <>
-      <NextSeo title={title} />
+      <NextSeo title={title} description={description} />
       <NavigationBar />
 
       <main style={{ paddingBottom: "3rem" }}>

@@ -44,7 +44,10 @@ export default function YearsPage() {
   );
 
   return (
-    <StandardLayout title="Years">
+    <StandardLayout
+      title="Years"
+      description="Rank your favourite Eurovision songs!"
+    >
       {breadcrums}
       <Title>Available years</Title>
 

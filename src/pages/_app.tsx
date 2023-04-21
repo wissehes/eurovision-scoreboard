@@ -22,7 +22,18 @@ const MyApp: AppType<{ session: Session | null }> = ({
         <meta name="viewport" content="initial-scale=1, width=device-width" />
       </Head>
 
-      <DefaultSeo titleTemplate="%s | Eurovision Scoreboard" />
+      <DefaultSeo
+        openGraph={{
+          type: "website",
+          locale: "en_IE",
+          siteName: "Eurovision Scoreboard",
+        }}
+        twitter={{
+          handle: "@L0coloco",
+          cardType: "summary",
+        }}
+        titleTemplate="%s | Eurovision Scoreboard"
+      />
 
       <SessionProvider session={session}>
         <MantineProvider
