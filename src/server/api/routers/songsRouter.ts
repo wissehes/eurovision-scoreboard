@@ -11,6 +11,7 @@ import {
 } from "~/server/api/trpc";
 import delay from "~/utils/delay";
 import { fetchiTunesData } from "~/utils/fetchiTunesData";
+import { getUserRanking } from "~/utils/ranking/getUserRanking";
 
 export const songsRouter = createTRPCRouter({
   getAll: publicProcedure.query(({ ctx }) => {
@@ -57,52 +58,18 @@ export const songsRouter = createTRPCRouter({
     .input(z.object({ year: z.number(), id: z.string() }))
     .query(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
-
-      const group = await ctx.prisma.eurovisionGroup.findFirst({
-        where: { yearId: input.year, id: input.id },
-        include: {
-          items: {
-            include: { country: true },
-          },
-        },
-      });
-
-      if (!group) {
+      try {
+        const data = getUserRanking({
+          userId,
+          groupId: input.id,
+          year: input.year,
+        });
+        return data;
+      } catch (error) {
         throw new TRPCError({
           code: "NOT_FOUND",
         });
       }
-
-      const myRanking = await ctx.prisma.userRanking.findFirst({
-        where: { userId, groupId: group.id },
-        include: {
-          rankedSongs: {
-            include: {
-              song: {
-                include: {
-                  country: true,
-                },
-              },
-            },
-            orderBy: {
-              rank: "asc",
-            },
-          },
-        },
-      });
-
-      const unrankedSongs = group.items.filter(
-        (a) => !myRanking?.rankedSongs.find((b) => a.id == b.song.id)
-      );
-
-      return {
-        id: group.id,
-        name: group.name,
-        type: group.type,
-        year: group.yearId,
-        myRanking,
-        unrankedSongs,
-      };
     }),
 
   saveRanking: protectedProcedure
@@ -135,19 +102,24 @@ export const songsRouter = createTRPCRouter({
       }
 
       const userId = ctx.session.user.id;
+      const ranking = group.rankings[0];
 
-      if (group.rankings[0]) {
+      if (ranking) {
         // update
 
         const transactions = input.items.map((i) => {
-          const ranked = group.rankings[0]?.rankedSongs.find(
-            (a) => a.songId == i.id
-          );
-          console.log(ranked);
-          // if (!ranked) return new Promise((res) => res(null));
-          return ctx.prisma.rankedSong.update({
-            where: { id: ranked?.id },
-            data: { rank: i.rank },
+          const ranked = ranking.rankedSongs.find((a) => a.songId == i.id);
+
+          return ctx.prisma.rankedSong.upsert({
+            where: { id: ranked?.id ?? "" },
+            create: {
+              rank: i.rank,
+              song: { connect: { id: i.id } },
+              ranking: { connect: { id: ranking.id } },
+            },
+            update: {
+              rank: i.rank,
+            },
           });
         });
 
