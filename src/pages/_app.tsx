@@ -10,6 +10,7 @@ import Head from "next/head";
 import { MantineProvider } from "@mantine/core";
 import { Notifications } from "@mantine/notifications";
 import NavigationTransition from "~/components/Navigation/NavigationTransition";
+import { DefaultSeo } from "next-seo";
 
 const MyApp: AppType<{ session: Session | null }> = ({
   Component,
@@ -20,6 +21,8 @@ const MyApp: AppType<{ session: Session | null }> = ({
       <Head>
         <meta name="viewport" content="initial-scale=1, width=device-width" />
       </Head>
+
+      <DefaultSeo titleTemplate="%s | Eurovision Scoreboard" />
 
       <SessionProvider session={session}>
         <MantineProvider
