@@ -1,4 +1,4 @@
-import { Loader, Text, Title } from "@mantine/core";
+import { Loader, MediaQuery, Text, Title, createStyles } from "@mantine/core";
 import type { EurovisionGroup, EurovisionYear, SongItem } from "@prisma/client";
 import type { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import Link from "next/link";
@@ -35,11 +35,19 @@ export const getServerSideProps: GetServerSideProps<{
   return { props: { yearData } };
 };
 
+const useStyles = createStyles((theme) => ({
+  chevron: {
+    [theme.fn.smallerThan("xs")]: {
+      marginLeft: "auto",
+    },
+  },
+}));
+
 export default function YearPage({
   yearData,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const router = useRouter();
-
+  const { classes } = useStyles();
   const yearN = router.query.year as string | undefined;
 
   const year = api.years.get.useQuery(
@@ -84,12 +92,12 @@ export default function YearPage({
             <Title order={2} style={{ padding: "1rem" }}>
               {i.name}
             </Title>
-
-            <Text color="dimmed" sx={{ marginLeft: "auto" }} mr="md">
-              {i.items.length} Songs
-            </Text>
-
-            <MyList.Chevron ml={false} />
+            <MediaQuery smallerThan="xs" styles={{ display: "none" }}>
+              <Text color="dimmed" sx={{ marginLeft: "auto" }} mr="md">
+                {i.items.length} Songs
+              </Text>
+            </MediaQuery>
+            <MyList.Chevron ml={false} className={classes.chevron} />
           </MyList.Item>
         ))}
 
