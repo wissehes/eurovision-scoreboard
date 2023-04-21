@@ -9,6 +9,7 @@ A simple web app where you can rank your favourite Eurovision songs.
 - UI
   - Framework: [Next.js](https://nextjs.org/)
   - Components: [Mantine](https://mantine.dev)
+  - Drag & Drop: [react-beautiful-dnd](https://github.com/atlassian/react-beautiful-dnd)
 - Database ORM: [Prisma](https://www.prisma.io/)
   - Database under the hood: [Postgres](https://www.postgresql.org/)
 - Authentication: [Next Auth](https://next-auth.js.org/)
