@@ -145,6 +145,12 @@ const useStyles = createStyles((theme) => ({
     "&:hover": {
       color: theme.colors.gray[3],
     },
+
+    overflow: "clip",
+
+    [theme.fn.smallerThan("xs")]: {
+      fontSize: rem(25),
+    },
   },
 }));
 
