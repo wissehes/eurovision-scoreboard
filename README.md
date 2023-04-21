@@ -4,7 +4,7 @@ A simple web app where you can rank your favourite Eurovision songs.
 - Deploy: tbd
 
 ## Tech stack
-### Based on [create-t3-app](https://github.com/t3-oss/create-t3-app)
+### Created with [create-t3-app](https://github.com/t3-oss/create-t3-app)
 
 - UI
   - Framework: [Next.js](https://nextjs.org/)
