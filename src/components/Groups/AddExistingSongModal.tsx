@@ -1,5 +1,6 @@
 import { Button, Checkbox, LoadingOverlay, Modal, Text } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
+import { IconPlus } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import { useNotify } from "~/utils/Notifications";
 import { api } from "~/utils/api";
@@ -48,7 +49,9 @@ export default function AddExistingSongModal({
 
   return (
     <>
-      <Button onClick={open}>Add existing</Button>
+      <Button onClick={open} leftIcon={<IconPlus size="1rem" />}>
+        Add existing
+      </Button>
       <Modal opened={opened} onClose={close} title="Add existing song">
         <LoadingOverlay
           visible={mutatation.isLoading || mutatation.isSuccess}

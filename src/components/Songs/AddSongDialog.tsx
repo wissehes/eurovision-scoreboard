@@ -12,6 +12,7 @@ import {
 } from "@mantine/core";
 import { Form, useForm } from "@mantine/form";
 import { useNotify } from "~/utils/Notifications";
+import { IconPlus } from "@tabler/icons-react";
 
 interface AddSongDialogProps {
   year: number;
@@ -86,7 +87,9 @@ export default function AddSongModal(props: AddSongDialogProps) {
 
   return (
     <>
-      <Button onClick={open}>Add song</Button>
+      <Button onClick={open} leftIcon={<IconPlus size="1rem" />}>
+        Add song
+      </Button>
 
       <Modal opened={opened} onClose={close} title="Add song">
         <LoadingOverlay visible={mutation.isLoading || mutation.isSuccess} />
