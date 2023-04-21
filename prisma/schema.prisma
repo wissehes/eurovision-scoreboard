@@ -26,8 +26,9 @@ model EurovisionGroup {
     year   EurovisionYear @relation(fields: [yearId], references: [year])
     yearId Int
 
-    name String
-    type EurovisionType
+    name    String
+    type    EurovisionType
+    enabled Boolean        @default(true)
 
     items    SongItem[]
     rankings UserRanking[]
