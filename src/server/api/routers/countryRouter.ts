@@ -17,6 +17,7 @@ const exportedJSONData = z.array(
     country: z.object({
       id: z.string(),
       fullname: z.string(),
+      isoCode: z.string().optional(),
     }),
 
     songs: z.array(
@@ -24,6 +25,8 @@ const exportedJSONData = z.array(
         artist: z.string(),
         songTitle: z.string(),
         youtubeURL: z.string(),
+        previewURL: z.string().optional(),
+        artworkURL: z.string().optional(),
       })
     ),
   })
@@ -45,11 +48,13 @@ export const countryRouter = createTRPCRouter({
     });
 
     const mappedData: ExportedJSONData = data.map((c) => ({
-      country: { id: c.id, fullname: c.fullname },
+      country: { id: c.id, fullname: c.fullname, isoCode: c.isoCode },
       songs: c.items.map((s) => ({
         artist: s.artist,
         songTitle: s.title,
         youtubeURL: s.youtubeURL,
+        previewURL: s.previewURL ?? undefined,
+        artworkURL: s.artworkURL ?? undefined,
       })),
     }));
 
@@ -137,6 +142,8 @@ export const countryRouter = createTRPCRouter({
         songTitle: string;
         artist: string;
         youtubeURL: string;
+        previewURL?: string;
+        artworkURL?: string;
         countryId: string;
       }[] = [];
 
@@ -159,6 +166,8 @@ export const countryRouter = createTRPCRouter({
           artist: s.artist,
           title: s.songTitle,
           youtubeURL: s.youtubeURL,
+          previewURL: s.previewURL,
+          artworkURL: s.artworkURL,
           countryId: s.countryId,
         })),
       });
