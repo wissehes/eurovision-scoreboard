@@ -4,6 +4,7 @@ import { type GetServerSideProps } from "next";
 import LinkBreadcrumbs, { crumbs } from "~/components/LinkBreadcrumbs";
 import StandardLayout from "~/layouts/StandardLayout";
 import { getServerAuthSession } from "~/server/auth";
+import { useNotify } from "~/utils/Notifications";
 import { api } from "~/utils/api";
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
@@ -21,8 +22,15 @@ const breadcrumbs = (
 );
 
 export default function SongsAdminPage() {
+  const ctx = api.useContext();
+  const notify = useNotify();
   const songs = api.songs.getAll.useQuery();
-  const update = api.songs.updatePreviews.useMutation();
+  const update = api.songs.updatePreviews.useMutation({
+    onSuccess: async () => {
+      notify.songs.previewUpdated();
+      await ctx.songs.getAll.invalidate();
+    },
+  });
 
   return (
     <StandardLayout title="Songs">
