@@ -1,5 +1,5 @@
 // Mantine components
-import { Title } from "@mantine/core";
+import { Tabs, Text, Title } from "@mantine/core";
 
 // Types
 import type { RankingData } from "~/utils/ranking/getUserRanking";
@@ -89,9 +89,26 @@ export default function RankingPage({
       <Title mb="md">
         {year}: {item.data?.name}
       </Title>
-      {!Number.isNaN(year) && groupId && (
-        <RankingView year={year} groupId={groupId} initialData={initialData} />
-      )}
+
+      <Tabs keepMounted={false} defaultValue="ranking" variant="outline">
+        <Tabs.List>
+          <Tabs.Tab value="ranking">My Ranking</Tabs.Tab>
+          <Tabs.Tab value="total">Total points</Tabs.Tab>
+        </Tabs.List>
+
+        <Tabs.Panel value="ranking">
+          {!Number.isNaN(year) && groupId && (
+            <RankingView
+              year={year}
+              groupId={groupId}
+              initialData={initialData}
+            />
+          )}
+        </Tabs.Panel>
+        <Tabs.Panel value="total">
+          <Text italic>Coming soon...</Text>
+        </Tabs.Panel>
+      </Tabs>
     </StandardLayout>
   );
 }

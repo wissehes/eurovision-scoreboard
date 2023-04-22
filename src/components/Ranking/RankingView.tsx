@@ -73,7 +73,13 @@ export default function RankingView({ year, groupId }: RankingViewProps) {
               shadow="md"
               radius="md"
               withBorder
-              style={{ userSelect: "none" }}
+              style={{
+                userSelect: "none",
+                // No styles on top, so it lines up with the tabs
+                borderTop: "none",
+                borderTopLeftRadius: 0,
+                borderTopRightRadius: 0,
+              }}
             >
               <Title order={4}>Songs</Title>
               <Text mb="md" color="dimmed">
