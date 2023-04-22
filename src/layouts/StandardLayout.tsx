@@ -1,6 +1,7 @@
 import { NextSeo } from "next-seo";
 import NavigationBar from "~/components/Navigation/NavigationBar";
 import { Container } from "@mantine/core";
+import React from "react";
 
 export default function StandardLayout({
   title,
@@ -9,7 +10,8 @@ export default function StandardLayout({
 }: {
   title: string;
   description?: string;
-  children?: JSX.Element | JSX.Element[] | string | undefined;
+  // children?: JSX.Element | JSX.Element[] | string | undefined;
+  children: React.ReactNode | React.ReactNode[];
 }) {
   return (
     <>
