@@ -17,10 +17,11 @@ import {
   IconChevronDown,
   IconLogout,
   IconUser,
-  IconDashboard,
+  // IconDashboard,
   IconCalendar,
   IconWorld,
   IconMusic,
+  IconUsers,
 } from "@tabler/icons-react";
 
 const useStyles = createStyles((theme) => ({
@@ -223,7 +224,8 @@ function UserSection() {
 }
 
 const adminItems: DropdownLink[] = [
-  { label: "Admin page", href: "/admin", Icon: IconDashboard },
+  // { label: "Admin page", href: "/admin", Icon: IconDashboard },
+  { label: "Users", href: "/admin/users", Icon: IconUsers },
   { label: "Years", href: "/admin/year", Icon: IconCalendar },
   { label: "Countries", href: "/admin/countries", Icon: IconWorld },
   { label: "Songs", href: "/admin/songs", Icon: IconMusic },
