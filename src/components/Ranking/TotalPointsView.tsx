@@ -1,4 +1,4 @@
-import { Box, Paper, Text, createStyles, rem } from "@mantine/core";
+import { Box, Paper, Text, Title, createStyles, rem } from "@mantine/core";
 import { api } from "~/utils/api";
 import FlagImage from "../Countries/FlagImage";
 
@@ -63,7 +63,14 @@ export default function TotalPointsView({
       radius="md"
       withBorder
       className={classes.root}
+      style={{
+        borderTop: "none",
+      }}
     >
+      <Title order={4}>Total points</Title>
+      <Text mb="md" color="dimmed">
+        These are the combined scores from everybody&apos;s ranking
+      </Text>
       {total.data?.map((item, index) => (
         <Paper
           key={item.country.id}
