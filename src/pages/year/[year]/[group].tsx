@@ -1,5 +1,5 @@
 // Mantine components
-import { Tabs, Text, Title } from "@mantine/core";
+import { Tabs, Title } from "@mantine/core";
 
 // Types
 import type { RankingData } from "~/utils/ranking/getUserRanking";
@@ -8,7 +8,6 @@ import type { GetServerSideProps, InferGetServerSidePropsType } from "next";
 // API & Hooks
 import { useRouter } from "next/router";
 import { useMemo } from "react";
-import { api } from "~/utils/api";
 import { getServerAuthSession } from "~/server/auth";
 import { getUserRanking } from "~/utils/ranking/getUserRanking";
 
@@ -16,6 +15,7 @@ import { getUserRanking } from "~/utils/ranking/getUserRanking";
 import LinkBreadcrumbs, { type Link } from "~/components/LinkBreadcrumbs";
 import StandardLayout from "~/layouts/StandardLayout";
 import RankingView from "~/components/Ranking/RankingView";
+import TotalPointsView from "~/components/Ranking/TotalPointsView";
 
 export const getServerSideProps: GetServerSideProps<{
   data: RankingData;
@@ -58,36 +58,25 @@ export default function RankingPage({
   const year = Number(router.query.year as string | undefined);
   const groupId = router.query.group as string | undefined;
 
-  const item = api.songs.getForRankedYearGroup.useQuery(
-    {
-      year,
-      id: groupId as string,
-    },
-    { enabled: !Number.isNaN(year), initialData }
-  );
-
   const breadcrumbs = useMemo(() => {
     const links: Link[] = [
       { label: "Home", href: "/" },
       { label: `${year}`, href: `/year/${year}` },
+      {
+        label: initialData.name,
+        href: `/year/${initialData.year}/${initialData.id}`,
+      },
     ];
 
-    if (item.data) {
-      links.push({
-        label: item.data.name,
-        href: `/year/${item.data.year}/${item.data.id}`,
-      });
-    }
-
     return <LinkBreadcrumbs my="md" links={links} />;
-  }, [item.data, year]);
+  }, [year, initialData]);
 
   return (
-    <StandardLayout title={`${item.data.name} - ${item.data.year}`}>
+    <StandardLayout title={`${initialData.name} - ${initialData.year}`}>
       {breadcrumbs}
 
       <Title mb="md">
-        {year}: {item.data?.name}
+        {year}: {initialData.name}
       </Title>
 
       <Tabs keepMounted={false} defaultValue="ranking" variant="outline">
@@ -106,7 +95,9 @@ export default function RankingPage({
           )}
         </Tabs.Panel>
         <Tabs.Panel value="total">
-          <Text italic>Coming soon...</Text>
+          {!Number.isNaN(year) && groupId && (
+            <TotalPointsView year={year} groupId={groupId} />
+          )}
         </Tabs.Panel>
       </Tabs>
     </StandardLayout>
