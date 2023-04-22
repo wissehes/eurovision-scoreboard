@@ -7,7 +7,8 @@ interface FlagImageProps extends Omit<ImageProps, "children"> {
 export default function FlagImage({ code, ...props }: FlagImageProps) {
   return (
     <Image
-      src={`https://flagcdn.com/${code.toLowerCase()}.svg`}
+      // src={`https://flagcdn.com/${code.toLowerCase()}.svg`}
+      src={`/flags/svg/${code.toUpperCase()}.svg`}
       alt={`Flag for ${code}`}
       radius={5}
       withPlaceholder
