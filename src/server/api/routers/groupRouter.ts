@@ -32,6 +32,7 @@ export const groupRouter = createTRPCRouter({
           "SEMI_2",
           "NATIONAL_FINAL",
           "GROUP",
+          "ALL_SONGS",
         ]),
       })
     )
