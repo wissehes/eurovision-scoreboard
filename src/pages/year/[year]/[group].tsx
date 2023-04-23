@@ -16,9 +16,11 @@ import LinkBreadcrumbs, { type Link } from "~/components/LinkBreadcrumbs";
 import StandardLayout from "~/layouts/StandardLayout";
 import RankingView from "~/components/Ranking/RankingView";
 import TotalPointsView from "~/components/Ranking/TotalPointsView";
+import { queryTypes, useQueryState } from "next-usequerystate";
 
 export const getServerSideProps: GetServerSideProps<{
   data: RankingData;
+  tab: string | null;
 }> = async (ctx) => {
   const session = await getServerAuthSession(ctx);
   if (!session)
@@ -27,13 +29,15 @@ export const getServerSideProps: GetServerSideProps<{
   const year = ctx.params?.year;
   const yearNumber = Number(year);
   const group = ctx.params?.group;
+  const tab = ctx.query.tab ?? null;
 
   if (
     !year ||
     Array.isArray(year) ||
     Number.isNaN(yearNumber) ||
     !group ||
-    Array.isArray(group)
+    Array.isArray(group) ||
+    Array.isArray(tab)
   )
     return { notFound: true };
 
@@ -44,7 +48,7 @@ export const getServerSideProps: GetServerSideProps<{
       year: yearNumber,
     });
 
-    return { props: { session, data: data } };
+    return { props: { session, data: data, tab } };
   } catch {
     return { notFound: true };
   }
@@ -52,8 +56,13 @@ export const getServerSideProps: GetServerSideProps<{
 
 export default function RankingPage({
   data: initialData,
+  tab: ssrTab,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const router = useRouter();
+  const [currentTab, setTab] = useQueryState(
+    "tab",
+    queryTypes.string.withDefault(ssrTab ?? "ranking")
+  );
 
   const year = Number(router.query.year as string | undefined);
   const groupId = router.query.group as string | undefined;
@@ -79,7 +88,12 @@ export default function RankingPage({
         {year}: {initialData.name}
       </Title>
 
-      <Tabs keepMounted={false} defaultValue="ranking" variant="outline">
+      <Tabs
+        keepMounted={false}
+        variant="outline"
+        value={currentTab}
+        onTabChange={(v) => void setTab(v)}
+      >
         <Tabs.List>
           <Tabs.Tab value="ranking">My Ranking</Tabs.Tab>
           <Tabs.Tab value="total">Total points</Tabs.Tab>
