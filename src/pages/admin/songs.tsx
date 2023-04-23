@@ -1,6 +1,7 @@
-import { Anchor, Button, Group, Table, Title } from "@mantine/core";
+import { Anchor, Button, Group, Table, Text, Title } from "@mantine/core";
 import { IconRefresh } from "@tabler/icons-react";
 import { type GetServerSideProps } from "next";
+import { useMemo } from "react";
 import LinkBreadcrumbs, { crumbs } from "~/components/LinkBreadcrumbs";
 import StandardLayout from "~/layouts/StandardLayout";
 import { getServerAuthSession } from "~/server/auth";
@@ -32,13 +33,20 @@ export default function SongsAdminPage() {
     },
   });
 
+  // Number of songs without a previewURL linked
+  const songsWOPreview = useMemo(
+    () => songs.data?.filter((s) => !s.previewURL).length,
+    [songs.data]
+  );
+
   return (
     <StandardLayout title="Songs">
       {breadcrumbs}
       <Title>Songs</Title>
-      <Title order={3} mb="md">
-        Songs: {songs.data?.length || <i>Loading...</i>}
-      </Title>
+      <Text>Songs: {songs.data?.length || <i>Loading...</i>}</Text>
+      <Text mb="md">
+        Songs without a preview: {songsWOPreview || <i>Loading...</i>}
+      </Text>
 
       <Group mb="md">
         <Button
