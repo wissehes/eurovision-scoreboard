@@ -1,6 +1,16 @@
-import { Box, Paper, Text, Title, createStyles, rem } from "@mantine/core";
+import {
+  Box,
+  Loader,
+  Paper,
+  Text,
+  Title,
+  Transition,
+  createStyles,
+  rem,
+} from "@mantine/core";
 import { api } from "~/utils/api";
 import FlagImage from "../Countries/FlagImage";
+import type { CSSProperties } from "react";
 
 interface TotalPointsViewProps {
   year: number;
@@ -14,6 +24,7 @@ const useStyles = createStyles((theme) => ({
     borderTop: "none",
     borderTopLeftRadius: 0,
     borderTopRightRadius: 0,
+    transition: "ease 1s",
   },
   item: {
     display: "flex",
@@ -71,6 +82,42 @@ export default function TotalPointsView({
       <Text mb="md" color="dimmed">
         These are the combined scores from everybody&apos;s ranking
       </Text>
+      {total.isLoading && (
+        <Box
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "25rem",
+          }}
+        >
+          <Loader />
+        </Box>
+      )}
+      <Transition
+        mounted={!total.isLoading}
+        transition="slide-up"
+        duration={500}
+        timingFunction="ease"
+      >
+        {(styles) => (
+          <TotalPointsList year={year} groupId={groupId} styles={styles} />
+        )}
+      </Transition>
+    </Paper>
+  );
+}
+
+function TotalPointsList({
+  year,
+  groupId,
+  styles,
+}: TotalPointsViewProps & { styles: CSSProperties }) {
+  const total = api.group.totalPoints.useQuery({ year, id: groupId });
+  const { classes } = useStyles();
+
+  return (
+    <>
       {total.data?.map((item, index) => (
         <Paper
           key={item.country.id}
@@ -79,6 +126,7 @@ export default function TotalPointsView({
           radius="sm"
           shadow="md"
           withBorder
+          style={styles}
         >
           <Box className={classes.item}>
             <Box className={classes.rank}>
@@ -113,6 +161,6 @@ export default function TotalPointsView({
           </Box>
         </Paper>
       ))}
-    </Paper>
+    </>
   );
 }
