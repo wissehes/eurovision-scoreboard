@@ -3,6 +3,8 @@ import type { Country, SongItem } from "@prisma/client";
 import FlagImage from "../Countries/FlagImage";
 import { IconBrandYoutube } from "@tabler/icons-react";
 import dynamic from "next/dynamic";
+import { useSession } from "next-auth/react";
+import EditSongButton from "../Songs/EditSongButton";
 
 type Song = SongItem & {
   country: Country;
@@ -53,6 +55,7 @@ const PreviewPlayer = dynamic(() => import("../Songs/PreviewPlayer"), {
 
 export const DraggableSongItem = ({ song, index }: SongItemProps) => {
   const { classes } = useStyles();
+  const { data: session } = useSession();
 
   return (
     <Box className={classes.root}>
@@ -88,6 +91,8 @@ export const DraggableSongItem = ({ song, index }: SongItemProps) => {
           >
             <IconBrandYoutube />
           </ActionIcon>
+
+          {session?.user.role == "ADMIN" && <EditSongButton songId={song.id} />}
         </Group>
       </>
     </Box>

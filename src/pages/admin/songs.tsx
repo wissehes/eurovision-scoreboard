@@ -3,6 +3,7 @@ import { IconRefresh } from "@tabler/icons-react";
 import { type GetServerSideProps } from "next";
 import { useMemo } from "react";
 import LinkBreadcrumbs, { crumbs } from "~/components/LinkBreadcrumbs";
+import EditSongButton from "~/components/Songs/EditSongButton";
 import StandardLayout from "~/layouts/StandardLayout";
 import { getServerAuthSession } from "~/server/auth";
 import { useNotify } from "~/utils/Notifications";
@@ -35,7 +36,8 @@ export default function SongsAdminPage() {
 
   // Number of songs without a previewURL linked
   const songsWOPreview = useMemo(
-    () => songs.data?.filter((s) => !s.previewURL).length,
+    () =>
+      songs.data && songs.data?.filter((s) => !s.previewURL).length.toString(),
     [songs.data]
   );
 
@@ -66,6 +68,7 @@ export default function SongsAdminPage() {
             <th>Artist</th>
             <th>Preview</th>
             <th>Youtube</th>
+            <th>Edit</th>
           </tr>
         </thead>
         <tbody>
@@ -87,6 +90,9 @@ export default function SongsAdminPage() {
                 <Anchor href={i.youtubeURL} target="_blank">
                   Open
                 </Anchor>
+              </td>
+              <td>
+                <EditSongButton songId={i.id} variant="filled" />
               </td>
             </tr>
           ))}
