@@ -25,6 +25,15 @@ export function useNotify() {
           color: "green",
         });
       },
+
+      songSaved: (type: "updated" | "created") => {
+        notifications.show({
+          title: `Song ${type}`,
+          message: `Song ${type} and saved.`,
+          icon: <IconCheck />,
+          color: "green",
+        });
+      },
     },
   };
 }
