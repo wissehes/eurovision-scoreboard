@@ -23,6 +23,31 @@ export const songsRouter = createTRPCRouter({
     });
   }),
 
+  get: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(({ ctx, input }) =>
+      ctx.prisma.songItem.findUnique({
+        where: { id: input.id },
+        include: { country: true },
+      })
+    ),
+
+  update: adminProcedure
+    .input(
+      z.object({
+        id: z.string().nonempty(),
+
+        countryId: z.string().nonempty("Country can't be empty!"),
+        title: z.string().nonempty("Title can't be empty!"),
+        artist: z.string().nonempty("Artist can't be empty!"),
+        youtubeURL: z.string().url("YouTube URL Must be an actual url!"),
+        previewURL: z.string().url().optional(),
+      })
+    )
+    .mutation(({ ctx, input }) =>
+      ctx.prisma.songItem.update({ where: { id: input.id }, data: input })
+    ),
+
   getForYear: publicProcedure
     .input(z.object({ year: z.number(), filter: z.boolean().default(true) }))
     .query(async ({ ctx, input }) => {
