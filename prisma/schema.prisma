@@ -35,6 +35,7 @@ model EurovisionGroup {
 }
 
 enum EurovisionType {
+    ALL_SONGS
     GRAND_FINAL
     SEMI_1
     SEMI_2
