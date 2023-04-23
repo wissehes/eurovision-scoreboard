@@ -27,6 +27,7 @@ const exportedJSONData = z.array(
         youtubeURL: z.string(),
         previewURL: z.string().optional(),
         artworkURL: z.string().optional(),
+        year: z.number(),
       })
     ),
   })
@@ -44,7 +45,7 @@ export const countryRouter = createTRPCRouter({
 
   getExportJSON: adminProcedure.query(async ({ ctx }) => {
     const data = await ctx.prisma.country.findMany({
-      include: { items: true },
+      include: { items: { include: { groups: true } } },
     });
 
     const mappedData: ExportedJSONData = data.map((c) => ({
@@ -55,6 +56,7 @@ export const countryRouter = createTRPCRouter({
         youtubeURL: s.youtubeURL,
         previewURL: s.previewURL ?? undefined,
         artworkURL: s.artworkURL ?? undefined,
+        year: s.groups[0]?.yearId ?? 0,
       })),
     }));
 
@@ -123,7 +125,6 @@ export const countryRouter = createTRPCRouter({
         .filter((v) => v.id?.trim().length && v.fullname?.trim().length);
 
       const verified = schema.parse(mapped);
-      console.log(verified);
 
       await delay(1500);
 
@@ -135,44 +136,77 @@ export const countryRouter = createTRPCRouter({
   importFromJSON: adminProcedure
     .input(z.object({ json: z.string() }))
     .mutation(async ({ ctx, input }) => {
+      // Parse and validate the JSON against the zod schema
       const parsed: unknown = JSON.parse(input.json);
       const importData = exportedJSONData.parse(parsed);
 
-      const songsWithCountry: {
+      // A simple type for a song with a country id
+      // instead of a country with multiple songs
+      type SongWithCountryID = {
         songTitle: string;
         artist: string;
         youtubeURL: string;
         previewURL?: string;
         artworkURL?: string;
         countryId: string;
-      }[] = [];
+      };
 
-      for (const country of importData) {
-        for (const song of country.songs) {
-          songsWithCountry.push({
-            countryId: country.country.id,
+      // Create a map where the Key = year and Value = SongWithCountryID[]
+      const songsWithCountryByYear = new Map<number, SongWithCountryID[]>();
+
+      // For every country loop over its songs
+      for (const item of importData) {
+        // For every song, get the current songs for that year, or an empty array
+        // then add a song to that array (with a countryId)
+        // And then set those songs to the year in the Map
+        for (const song of item.songs) {
+          const yearItems = songsWithCountryByYear.get(song.year) ?? [];
+          const songFormatted: SongWithCountryID = {
+            countryId: item.country.id,
             ...song,
-          });
+          };
+          songsWithCountryByYear.set(song.year, [songFormatted, ...yearItems]);
         }
       }
 
+      // Add all countries to the db, if they don't yet exist
       const createCountries = ctx.prisma.country.createMany({
         data: importData.map((c) => c.country),
         skipDuplicates: true,
       });
 
-      const createSongs = ctx.prisma.songItem.createMany({
-        data: songsWithCountry.map((s) => ({
-          artist: s.artist,
-          title: s.songTitle,
-          youtubeURL: s.youtubeURL,
-          previewURL: s.previewURL,
-          artworkURL: s.artworkURL,
-          countryId: s.countryId,
-        })),
-      });
+      // For every year, create a group called "All songs"
+      const createAllSongsGroups = Array.from(songsWithCountryByYear).map(
+        ([year, songs]) => {
+          return ctx.prisma.eurovisionGroup.create({
+            data: {
+              name: "All Songs",
+              year: {
+                connectOrCreate: {
+                  create: { year },
+                  where: { year },
+                },
+              },
+              type: "ALL_SONGS",
+              items: {
+                create: songs.map((s) => ({
+                  artist: s.artist,
+                  title: s.songTitle,
+                  youtubeURL: s.youtubeURL,
+                  previewURL: s.previewURL,
+                  artworkURL: s.artworkURL,
+                  countryId: s.countryId,
+                })),
+              },
+            },
+          });
+        }
+      );
 
       await delay(250);
-      return ctx.prisma.$transaction([createCountries, createSongs]);
+      return ctx.prisma.$transaction([
+        createCountries,
+        ...createAllSongsGroups,
+      ]);
     }),
 });
