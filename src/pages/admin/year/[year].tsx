@@ -113,6 +113,7 @@ export default function YearAdminPage() {
 }
 
 const types: { label: string; value: EurovisionType }[] = [
+  { label: "All songs", value: "ALL_SONGS" },
   { label: "Grand final", value: "GRAND_FINAL" },
   { label: "First semi final", value: "SEMI_1" },
   { label: "Second semi final", value: "SEMI_2" },
