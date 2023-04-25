@@ -2,6 +2,7 @@ import { Anchor, Button, Group, Table, Text, Title } from "@mantine/core";
 import { IconRefresh } from "@tabler/icons-react";
 import { type GetServerSideProps } from "next";
 import { useMemo } from "react";
+import FlagImage from "~/components/Countries/FlagImage";
 import LinkBreadcrumbs, { crumbs } from "~/components/LinkBreadcrumbs";
 import EditSongButton from "~/components/Songs/EditSongButton";
 import StandardLayout from "~/layouts/StandardLayout";
@@ -63,6 +64,7 @@ export default function SongsAdminPage() {
       <Table striped>
         <thead>
           <tr>
+            <th>Flag</th>
             <th>Country</th>
             <th>Name</th>
             <th>Artist</th>
@@ -74,6 +76,9 @@ export default function SongsAdminPage() {
         <tbody>
           {songs.data?.map((i) => (
             <tr key={i.id}>
+              <td align="center">
+                <FlagImage code={i.country.isoCode} maw={25} />
+              </td>
               <td>{i.country.fullname}</td>
               <td>{i.title}</td>
               <td>{i.artist}</td>
