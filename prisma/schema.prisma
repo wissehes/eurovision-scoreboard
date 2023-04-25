@@ -17,6 +17,10 @@ datasource db {
 model EurovisionYear {
     year Int @id
 
+    hostCountry   Country? @relation(fields: [hostCountryId], references: [id])
+    hostCountryId String?
+    hostCity      String?
+
     items EurovisionGroup[]
 }
 
@@ -88,7 +92,8 @@ model Country {
     fullname String
     isoCode  String @default("")
 
-    items SongItem[]
+    items       SongItem[]
+    hostedYears EurovisionYear[]
 }
 
 // Necessary for Next auth
@@ -98,12 +103,12 @@ model Account {
     type              String
     provider          String
     providerAccountId String
-    refresh_token     String? // @db.Text
-    access_token      String? // @db.Text
+    refresh_token     String? @db.Text
+    access_token      String? @db.Text
     expires_at        Int?
     token_type        String?
     scope             String?
-    id_token          String? // @db.Text
+    id_token          String? @db.Text
     session_state     String?
     user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -125,6 +130,10 @@ model User {
     emailVerified DateTime?
     image         String?
     role          Role      @default(USER)
+    // Joined date (when the user was first created)
+    joined        DateTime  @default(now())
+    // Whether the user's rankings are public or not
+    private       Boolean   @default(false)
 
     accounts Account[]
     sessions Session[]
