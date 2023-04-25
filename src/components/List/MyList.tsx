@@ -3,10 +3,10 @@ import {
   Stack,
   UnstyledButton,
   createPolymorphicComponent,
-  type UnstyledButtonProps,
   Box,
+  type UnstyledButtonProps,
   type PaperProps,
-  BoxProps,
+  type BoxProps,
 } from "@mantine/core";
 import { IconChevronRight } from "@tabler/icons-react";
 import React, { forwardRef } from "react";
