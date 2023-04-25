@@ -6,6 +6,7 @@ import {
   type UnstyledButtonProps,
   Box,
   type PaperProps,
+  BoxProps,
 } from "@mantine/core";
 import { IconChevronRight } from "@tabler/icons-react";
 import React, { forwardRef } from "react";
@@ -49,6 +50,27 @@ const Item = forwardRef<HTMLButtonElement, UnstyledButtonProps>(
 );
 Item.displayName = "MyList.Item";
 
+const ItemNoButton = forwardRef<HTMLDivElement, BoxProps>(
+  ({ children, ...others }, ref) => (
+    <Box ref={ref} {...others}>
+      <Paper
+        p="xs"
+        radius="sm"
+        shadow="md"
+        withBorder
+        sx={{
+          display: "flex",
+          alignItems: "center",
+        }}
+      >
+        {children}
+      </Paper>
+    </Box>
+  )
+);
+
+ItemNoButton.displayName = "MyList.ItemNoButton";
+
 const Chevron = ({
   ml = true,
   className,
@@ -69,7 +91,9 @@ const Chevron = ({
 );
 
 MyList.Item = createPolymorphicComponent<"button", UnstyledButtonProps>(Item);
-
+MyList.ItemNoButton = createPolymorphicComponent<"div", UnstyledButtonProps>(
+  ItemNoButton
+);
 MyList.Chevron = Chevron;
 
 // MyList.displayName = "MYList!";
