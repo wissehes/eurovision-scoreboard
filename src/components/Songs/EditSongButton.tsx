@@ -10,7 +10,7 @@ import {
 } from "@mantine/core";
 import { Form, useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
-import { IconEdit } from "@tabler/icons-react";
+import { IconEdit, IconRefresh } from "@tabler/icons-react";
 import { useEffect } from "react";
 import { useNotify } from "~/utils/Notifications";
 import { api } from "~/utils/api";
@@ -35,6 +35,12 @@ export default function EditSongButton({ songId, ...props }: EditSongProps) {
   const song = api.songs.get.useQuery({ id: songId }, { enabled: opened });
   const countries = api.countries.getAll.useQuery(undefined, {
     enabled: opened,
+  });
+
+  const updatePreview = api.songs.updatePreview.useMutation({
+    onSuccess: (data) => {
+      form.setFieldValue("previewURL", data.previewURL ?? undefined);
+    },
   });
 
   const mutation = api.songs.update.useMutation({
@@ -76,6 +82,14 @@ export default function EditSongButton({ songId, ...props }: EditSongProps) {
     mutation.mutate({ id: songId, ...v });
   };
 
+  const refreshPreview = () => updatePreview.mutate({ songId });
+
+  const RefreshPrevURLBtn = () => (
+    <ActionIcon onClick={refreshPreview} color="blue">
+      <IconRefresh size="1.2rem" />
+    </ActionIcon>
+  );
+
   return (
     <>
       <ActionIcon color="blue" onClick={open} {...props}>
@@ -115,6 +129,12 @@ export default function EditSongButton({ songId, ...props }: EditSongProps) {
             label="YouTube URL"
             withAsterisk
             {...form.getInputProps("youtubeURL")}
+          />
+          <TextInput
+            label="Preview URL"
+            withAsterisk
+            rightSection={<RefreshPrevURLBtn />}
+            {...form.getInputProps("previewURL")}
           />
 
           <Group mt="md" position="right">

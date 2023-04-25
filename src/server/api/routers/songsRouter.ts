@@ -20,6 +20,9 @@ export const songsRouter = createTRPCRouter({
         country: true,
         groups: { include: { year: true } },
       },
+      orderBy: {
+        country: { fullname: "asc" },
+      },
     });
   }),
 
@@ -41,7 +44,7 @@ export const songsRouter = createTRPCRouter({
         title: z.string().nonempty("Title can't be empty!"),
         artist: z.string().nonempty("Artist can't be empty!"),
         youtubeURL: z.string().url("YouTube URL Must be an actual url!"),
-        previewURL: z.string().url().optional(),
+        previewURL: z.string().optional(),
       })
     )
     .mutation(({ ctx, input }) =>
@@ -228,4 +231,33 @@ export const songsRouter = createTRPCRouter({
 
     return true;
   }),
+
+  updatePreview: adminProcedure
+    .input(z.object({ songId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const song = await ctx.prisma.songItem.findUnique({
+        where: { id: input.songId },
+      });
+      if (!song) throw new TRPCError({ code: "NOT_FOUND" });
+      const { data } = await fetchiTunesData({
+        title: song.title,
+        artist: song.artist,
+      });
+      const firstItem = data.results.filter(
+        (s) =>
+          s.artworkUrl100 &&
+          s.previewUrl !== undefined &&
+          !s.trackName.toLowerCase().includes("karaoke")
+      )[1];
+
+      if (!firstItem) throw new TRPCError({ code: "BAD_REQUEST" });
+
+      return ctx.prisma.songItem.update({
+        where: { id: song.id },
+        data: {
+          previewURL: firstItem.previewUrl,
+          artworkURL: firstItem.artworkUrl100,
+        },
+      });
+    }),
 });
