@@ -66,10 +66,10 @@ model SongItem {
 
 model UserRanking {
     id     String @id @default(cuid())
-    user   User   @relation(fields: [userId], references: [id])
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
     userId String
 
-    group   EurovisionGroup @relation(fields: [groupId], references: [id])
+    group   EurovisionGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
     groupId String
 
     rankedSongs RankedSong[]
